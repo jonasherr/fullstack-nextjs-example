@@ -1,6 +1,6 @@
 import { PropertyFilters } from "@/components/property/property-filters";
 import { PropertyGrid } from "@/components/property/property-grid";
-import { mockProperties } from "@/lib/mock-data";
+import { searchProperties } from "@/db/queries";
 
 interface HomePageProps {
   searchParams: Promise<{
@@ -15,24 +15,12 @@ export default async function HomePage({ searchParams }: HomePageProps) {
   const params = await searchParams;
   const { location, minPrice, maxPrice, guests } = params;
 
-  // Filter properties based on search params
-  const filteredProperties = mockProperties.filter((property) => {
-    if (
-      location &&
-      !property.address.city.toLowerCase().includes(location.toLowerCase())
-    ) {
-      return false;
-    }
-    if (minPrice && property.pricePerNight < Number(minPrice)) {
-      return false;
-    }
-    if (maxPrice && property.pricePerNight > Number(maxPrice)) {
-      return false;
-    }
-    if (guests && property.maxGuests < Number(guests)) {
-      return false;
-    }
-    return true;
+  // Fetch properties from database with filters
+  const filteredProperties = await searchProperties({
+    city: location,
+    minPrice: minPrice ? Number(minPrice) : undefined,
+    maxPrice: maxPrice ? Number(maxPrice) : undefined,
+    minGuests: guests ? Number(guests) : undefined,
   });
 
   const hasFilters = location || minPrice || maxPrice || guests;

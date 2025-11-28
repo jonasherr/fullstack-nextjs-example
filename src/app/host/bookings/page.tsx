@@ -2,20 +2,29 @@ import { BookingCard } from "@/components/booking/booking-card";
 import {
   getBookingsByHostId,
   getPropertyById,
-  mockUsers,
-} from "@/lib/mock-data";
+  getUserById,
+  getUserByEmail,
+} from "@/db/queries";
 
-export default function HostBookingsPage() {
-  const hostBookings = getBookingsByHostId("user-1");
+export default async function HostBookingsPage() {
+  // TODO: Replace with actual session user ID in Phase 6
+  const hostUser = await getUserByEmail("host@example.com");
+  if (!hostUser) {
+    return <div>Host not found</div>;
+  }
 
-  const bookingsWithDetails = hostBookings
-    .map((booking) => {
-      const property = getPropertyById(booking.propertyId);
-      const guest = mockUsers.find((u) => u.id === booking.guestId);
+  const hostBookings = await getBookingsByHostId(hostUser.id);
+
+  const bookingsWithDetails = await Promise.all(
+    hostBookings.map(async (booking) => {
+      const property = await getPropertyById(booking.propertyId);
+      const guest = await getUserById(booking.guestId);
       if (!property || !guest) return null;
       return { booking, property, guest };
-    })
-    .filter((item): item is NonNullable<typeof item> => item !== null);
+    }),
+  ).then((results) =>
+    results.filter((item): item is NonNullable<typeof item> => item !== null),
+  );
 
   const pendingBookings = bookingsWithDetails.filter(
     (b) => b.booking.status === "pending",

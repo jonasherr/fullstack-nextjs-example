@@ -2,26 +2,27 @@ import { BookingCard } from "@/components/booking/booking-card";
 import {
   getBookingsByGuestId,
   getPropertyById,
-  mockUsers,
-} from "@/lib/mock-data";
+  getUserByEmail,
+} from "@/db/queries";
 
-export default function GuestBookingsPage() {
-  const guestBookings = getBookingsByGuestId("user-2");
+export default async function GuestBookingsPage() {
+  // TODO: Replace with actual session user ID in Phase 6
+  const guestUser = await getUserByEmail("guest@example.com");
+  if (!guestUser) {
+    return <div>Guest not found</div>;
+  }
 
-  const bookingsWithDetails = guestBookings
-    .map((booking) => {
-      const property = getPropertyById(booking.propertyId);
+  const guestBookings = await getBookingsByGuestId(guestUser.id);
+
+  const bookingsWithDetails = await Promise.all(
+    guestBookings.map(async (booking) => {
+      const property = await getPropertyById(booking.propertyId);
       if (!property) return null;
       return { booking, property };
-    })
-    .filter(
-      (
-        item,
-      ): item is {
-        booking: (typeof guestBookings)[0];
-        property: NonNullable<ReturnType<typeof getPropertyById>>;
-      } => item !== null,
-    );
+    }),
+  ).then((results) =>
+    results.filter((item): item is NonNullable<typeof item> => item !== null),
+  );
 
   return (
     <div className="space-y-6">
@@ -34,9 +35,7 @@ export default function GuestBookingsPage() {
               key={booking.id}
               booking={booking}
               property={property}
-              guestName={
-                mockUsers.find((u) => u.id === "user-2")?.name || "Guest"
-              }
+              guestName={guestUser.name}
             />
           ))}
         </div>

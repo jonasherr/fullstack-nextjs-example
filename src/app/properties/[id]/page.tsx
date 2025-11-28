@@ -4,7 +4,7 @@ import { BookingForm } from "@/components/booking/booking-form";
 import { Header } from "@/components/navigation/header";
 import { PropertyCarousel } from "@/components/property/property-carousel";
 import { Separator } from "@/components/ui/separator";
-import { getPropertyById } from "@/lib/mock-data";
+import { getPropertyById } from "@/db/queries";
 
 export default async function PropertyPage({
   params,
@@ -12,7 +12,7 @@ export default async function PropertyPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const property = getPropertyById(id);
+  const property = await getPropertyById(id);
 
   if (!property) {
     notFound();

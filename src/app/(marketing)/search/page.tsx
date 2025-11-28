@@ -1,6 +1,6 @@
 import { PropertyFilters } from "@/components/property/property-filters";
 import { PropertyGrid } from "@/components/property/property-grid";
-import { mockProperties } from "@/lib/mock-data";
+import { searchProperties } from "@/db/queries";
 
 export default async function SearchPage({
   searchParams,
@@ -8,20 +8,16 @@ export default async function SearchPage({
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
   const params = await searchParams;
-  const location = (params.location as string) || "";
-  const minPrice = params.minPrice ? Number(params.minPrice) : 0;
-  const maxPrice = params.maxPrice ? Number(params.maxPrice) : Infinity;
-  const guests = params.guests ? Number(params.guests) : 1;
+  const location = (params.location as string) || undefined;
+  const minPrice = params.minPrice ? Number(params.minPrice) : undefined;
+  const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined;
+  const guests = params.guests ? Number(params.guests) : undefined;
 
-  const filteredProperties = mockProperties.filter((property) => {
-    const matchesLocation =
-      !location ||
-      property.address.city.toLowerCase().includes(location.toLowerCase()) ||
-      property.address.state.toLowerCase().includes(location.toLowerCase());
-    const matchesPrice =
-      property.pricePerNight >= minPrice && property.pricePerNight <= maxPrice;
-    const matchesGuests = property.maxGuests >= guests;
-    return matchesLocation && matchesPrice && matchesGuests;
+  const filteredProperties = await searchProperties({
+    city: location,
+    minPrice,
+    maxPrice,
+    minGuests: guests,
   });
 
   return (

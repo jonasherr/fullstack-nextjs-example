@@ -2,10 +2,14 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { PropertyGrid } from "@/components/property/property-grid";
 import { Button } from "@/components/ui/button";
-import { mockProperties } from "@/lib/mock-data";
+import { getPropertiesByHostId, getUserByEmail } from "@/db/queries";
 
-export default function HostListingsPage() {
-  const hostProperties = mockProperties.filter((p) => p.hostId === "user-1");
+export default async function HostListingsPage() {
+  // TODO: Replace with actual session user ID in Phase 6
+  const hostUser = await getUserByEmail("host@example.com");
+  const hostProperties = hostUser
+    ? await getPropertiesByHostId(hostUser.id)
+    : [];
 
   return (
     <div className="space-y-6">
