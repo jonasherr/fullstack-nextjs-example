@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -24,6 +25,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { signIn } from "@/lib/auth-client";
 
 const loginFormSchema = z.object({
   email: z
@@ -40,6 +42,7 @@ type LoginFormData = z.infer<typeof loginFormSchema>;
 
 export function LoginForm() {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -48,14 +51,33 @@ export function LoginForm() {
     },
   });
 
-  function onSubmit(data: LoginFormData) {
-    console.log("Login data:", data);
+  async function onSubmit(data: LoginFormData) {
+    setIsSubmitting(true);
+    try {
+      const result = await signIn.email({
+        email: data.email,
+        password: data.password,
+      });
 
-    toast.success("Welcome back!", {
-      description: "You have successfully logged in.",
-    });
+      if (result.error) {
+        toast.error("Login failed", {
+          description: result.error.message || "Invalid email or password",
+        });
+        return;
+      }
 
-    router.back();
+      toast.success("Welcome back!", {
+        description: "You have successfully logged in.",
+      });
+
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -107,8 +129,13 @@ export function LoginForm() {
               )}
             />
 
-            <Button type="submit" className="w-full" size="lg">
-              Log in
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Logging in..." : "Log in"}
             </Button>
           </form>
         </Form>

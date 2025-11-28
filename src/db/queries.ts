@@ -176,6 +176,7 @@ export async function getBookingsByHostId(hostId: string): Promise<Booking[]> {
 			status: bookings.status,
 			totalPrice: bookings.totalPrice,
 			createdAt: bookings.createdAt,
+			updatedAt: bookings.updatedAt,
 		})
 		.from(bookings)
 		.innerJoin(properties, eq(bookings.propertyId, properties.id))
@@ -183,6 +184,23 @@ export async function getBookingsByHostId(hostId: string): Promise<Booking[]> {
 		.orderBy(bookings.createdAt);
 
 	return result.map(transformBooking);
+}
+
+// Get a specific booking by ID
+export async function getBookingById(
+	bookingId: string,
+): Promise<Booking | null> {
+	const result = await db
+		.select()
+		.from(bookings)
+		.where(eq(bookings.id, Number.parseInt(bookingId)))
+		.limit(1);
+
+	if (result.length === 0) {
+		return null;
+	}
+
+	return transformBooking(result[0]);
 }
 
 // Get accepted bookings for a property (for checking availability)

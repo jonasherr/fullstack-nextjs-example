@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 
 interface BookingFormProps {
   propertyId: string;
-  guestId: string;
+  guestId?: string;
   pricePerNight: number;
   maxGuests: number;
 }
@@ -45,6 +45,12 @@ export function BookingForm({
   const total = nights * pricePerNight;
 
   async function handleReserve() {
+    if (!guestId) {
+      toast.error("Please log in to complete your booking");
+      router.push("/login");
+      return;
+    }
+
     if (!dateRange?.from || !dateRange?.to) {
       toast.error("Please select check-in and check-out dates");
       return;

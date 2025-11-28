@@ -3,6 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -24,6 +25,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { signUp } from "@/lib/auth-client";
 
 const signupFormSchema = z
   .object({
@@ -39,11 +41,7 @@ const signupFormSchema = z
     password: z
       .string()
       .min(1, "Password is required")
-      .min(8, "Password must be at least 8 characters")
-      .regex(
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-        "Password must contain at least one uppercase letter, one lowercase letter, and one number",
-      ),
+      .min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -55,6 +53,7 @@ type SignupFormData = z.infer<typeof signupFormSchema>;
 
 export function SignupForm() {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<SignupFormData>({
     resolver: zodResolver(signupFormSchema),
     defaultValues: {
@@ -65,15 +64,35 @@ export function SignupForm() {
     },
   });
 
-  function onSubmit(data: SignupFormData) {
-    console.log("Signup data:", { ...data, confirmPassword: "[REDACTED]" });
+  async function onSubmit(data: SignupFormData) {
+    setIsSubmitting(true);
+    try {
+      const result = await signUp.email({
+        email: data.email,
+        password: data.password,
+        name: data.name,
+      });
 
-    toast.success("Account created!", {
-      description:
-        "Welcome to BeeBnB. Your account has been created successfully.",
-    });
+      if (result.error) {
+        toast.error("Sign up failed", {
+          description: result.error.message || "Unable to create account",
+        });
+        return;
+      }
 
-    router.back();
+      toast.success("Account created!", {
+        description:
+          "Welcome to BeeBnB. Your account has been created successfully.",
+      });
+
+      router.push("/");
+      router.refresh();
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -160,8 +179,13 @@ export function SignupForm() {
               )}
             />
 
-            <Button type="submit" className="w-full" size="lg">
-              Create account
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Creating account..." : "Create account"}
             </Button>
           </form>
         </Form>

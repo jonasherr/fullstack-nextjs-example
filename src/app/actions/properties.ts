@@ -6,9 +6,20 @@ import { insertPropertySchema } from "@/lib/schemas";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
+import { getSession } from "@/lib/auth-server";
+import { getPropertyById } from "@/db/queries";
 
 export async function createProperty(formData: FormData) {
 	try {
+		// Check authentication
+		const session = await getSession();
+		if (!session?.user) {
+			return {
+				success: false,
+				error: "You must be logged in to create a property",
+			};
+		}
+
 		// Extract data from FormData
 		const rawData = {
 			hostId: formData.get("hostId") as string,
@@ -25,6 +36,14 @@ export async function createProperty(formData: FormData) {
 			images: JSON.parse(formData.get("images") as string) as string[],
 			status: "active" as const,
 		};
+
+		// Verify the hostId matches the authenticated user
+		if (rawData.hostId !== session.user.id) {
+			return {
+				success: false,
+				error: "Unauthorized: You can only create properties for yourself",
+			};
+		}
 
 		// Validate with Zod schema
 		const validatedData = insertPropertySchema.parse(rawData);
@@ -54,6 +73,31 @@ export async function createProperty(formData: FormData) {
 
 export async function updateProperty(propertyId: string, formData: FormData) {
 	try {
+		// Check authentication
+		const session = await getSession();
+		if (!session?.user) {
+			return {
+				success: false,
+				error: "You must be logged in to update a property",
+			};
+		}
+
+		// Verify the property belongs to the authenticated user
+		const property = await getPropertyById(propertyId);
+		if (!property) {
+			return {
+				success: false,
+				error: "Property not found",
+			};
+		}
+
+		if (property.hostId !== session.user.id) {
+			return {
+				success: false,
+				error: "Unauthorized: You can only update your own properties",
+			};
+		}
+
 		// Extract data from FormData
 		const rawData = {
 			name: formData.get("name") as string,
@@ -99,6 +143,31 @@ export async function updateProperty(propertyId: string, formData: FormData) {
 
 export async function deleteProperty(propertyId: string) {
 	try {
+		// Check authentication
+		const session = await getSession();
+		if (!session?.user) {
+			return {
+				success: false,
+				error: "You must be logged in to delete a property",
+			};
+		}
+
+		// Verify the property belongs to the authenticated user
+		const property = await getPropertyById(propertyId);
+		if (!property) {
+			return {
+				success: false,
+				error: "Property not found",
+			};
+		}
+
+		if (property.hostId !== session.user.id) {
+			return {
+				success: false,
+				error: "Unauthorized: You can only delete your own properties",
+			};
+		}
+
 		await db
 			.delete(properties)
 			.where(eq(properties.id, Number.parseInt(propertyId)));

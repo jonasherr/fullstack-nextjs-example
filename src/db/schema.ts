@@ -28,7 +28,7 @@ export const bookingStatusEnum = pgEnum("booking_status", [
 
 // Better Auth tables
 export const user = pgTable("user", {
-	id: uuid("id").primaryKey().defaultRandom(),
+	id: text("id").primaryKey(),
 	name: text("name").notNull(),
 	email: text("email").notNull().unique(),
 	emailVerified: boolean("email_verified").notNull().default(false),
@@ -41,12 +41,12 @@ export const user = pgTable("user", {
 });
 
 export const session = pgTable("session", {
-	id: uuid("id").primaryKey().defaultRandom(),
+	id: text("id").primaryKey(),
 	expiresAt: timestamp("expires_at").notNull(),
 	token: text("token").notNull().unique(),
 	ipAddress: text("ip_address"),
 	userAgent: text("user_agent"),
-	userId: uuid("user_id")
+	userId: text("user_id")
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 	createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -57,10 +57,10 @@ export const session = pgTable("session", {
 });
 
 export const account = pgTable("account", {
-	id: uuid("id").primaryKey().defaultRandom(),
+	id: text("id").primaryKey(),
 	accountId: text("account_id").notNull(),
 	providerId: text("provider_id").notNull(),
-	userId: uuid("user_id")
+	userId: text("user_id")
 		.notNull()
 		.references(() => user.id, { onDelete: "cascade" }),
 	accessToken: text("access_token"),
@@ -76,7 +76,7 @@ export const account = pgTable("account", {
 });
 
 export const verification = pgTable("verification", {
-	id: uuid("id").primaryKey().defaultRandom(),
+	id: text("id").primaryKey(),
 	identifier: text("identifier").notNull(),
 	value: text("value").notNull(),
 	expiresAt: timestamp("expires_at").notNull(),
@@ -92,7 +92,7 @@ export const properties = pgTable(
 	"properties",
 	{
 		id: serial("id").primaryKey(),
-		hostId: uuid("host_id")
+		hostId: text("host_id")
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
 		name: varchar("name", { length: 255 }).notNull(),
@@ -131,7 +131,7 @@ export const bookings = pgTable(
 		propertyId: integer("property_id")
 			.notNull()
 			.references(() => properties.id, { onDelete: "cascade" }),
-		guestId: uuid("guest_id")
+		guestId: text("guest_id")
 			.notNull()
 			.references(() => user.id, { onDelete: "cascade" }),
 		checkInDate: date("check_in_date").notNull(),

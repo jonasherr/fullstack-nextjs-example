@@ -1,18 +1,16 @@
 import { BookingCard } from "@/components/booking/booking-card";
-import {
-  getBookingsByGuestId,
-  getPropertyById,
-  getUserByEmail,
-} from "@/db/queries";
+import { getBookingsByGuestId, getPropertyById } from "@/db/queries";
+import { getSession } from "@/lib/auth-server";
+import { redirect } from "next/navigation";
 
 export default async function GuestBookingsPage() {
-  // TODO: Replace with actual session user ID in Phase 6
-  const guestUser = await getUserByEmail("guest@example.com");
-  if (!guestUser) {
-    return <div>Guest not found</div>;
+  const session = await getSession();
+
+  if (!session?.user) {
+    redirect("/login");
   }
 
-  const guestBookings = await getBookingsByGuestId(guestUser.id);
+  const guestBookings = await getBookingsByGuestId(session.user.id);
 
   const bookingsWithDetails = await Promise.all(
     guestBookings.map(async (booking) => {
@@ -35,7 +33,7 @@ export default async function GuestBookingsPage() {
               key={booking.id}
               booking={booking}
               property={property}
-              guestName={guestUser.name}
+              guestName={session.user.name}
             />
           ))}
         </div>

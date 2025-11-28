@@ -2,14 +2,18 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import { PropertyGrid } from "@/components/property/property-grid";
 import { Button } from "@/components/ui/button";
-import { getPropertiesByHostId, getUserByEmail } from "@/db/queries";
+import { getPropertiesByHostId } from "@/db/queries";
+import { getSession } from "@/lib/auth-server";
+import { redirect } from "next/navigation";
 
 export default async function HostListingsPage() {
-  // TODO: Replace with actual session user ID in Phase 6
-  const hostUser = await getUserByEmail("host@example.com");
-  const hostProperties = hostUser
-    ? await getPropertiesByHostId(hostUser.id)
-    : [];
+  const session = await getSession();
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  const hostProperties = await getPropertiesByHostId(session.user.id);
 
   return (
     <div className="space-y-6">

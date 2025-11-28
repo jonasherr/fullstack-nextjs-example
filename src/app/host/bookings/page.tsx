@@ -3,17 +3,18 @@ import {
   getBookingsByHostId,
   getPropertyById,
   getUserById,
-  getUserByEmail,
 } from "@/db/queries";
+import { getSession } from "@/lib/auth-server";
+import { redirect } from "next/navigation";
 
 export default async function HostBookingsPage() {
-  // TODO: Replace with actual session user ID in Phase 6
-  const hostUser = await getUserByEmail("host@example.com");
-  if (!hostUser) {
-    return <div>Host not found</div>;
+  const session = await getSession();
+
+  if (!session?.user) {
+    redirect("/login");
   }
 
-  const hostBookings = await getBookingsByHostId(hostUser.id);
+  const hostBookings = await getBookingsByHostId(session.user.id);
 
   const bookingsWithDetails = await Promise.all(
     hostBookings.map(async (booking) => {

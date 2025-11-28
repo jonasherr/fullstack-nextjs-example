@@ -7,6 +7,11 @@ function hashPassword(password: string): string {
 	return crypto.createHash("sha256").update(password).digest("hex");
 }
 
+// Generate a random ID (similar to Better Auth's format)
+function generateId(): string {
+	return crypto.randomBytes(16).toString("base64url");
+}
+
 async function seed() {
 	console.log("🌱 Seeding database...");
 
@@ -18,11 +23,13 @@ async function seed() {
 			.insert(user)
 			.values([
 				{
+					id: generateId(),
 					name: "John Host",
 					email: "host@example.com",
 					emailVerified: true,
 				},
 				{
+					id: generateId(),
 					name: "Jane Guest",
 					email: "guest@example.com",
 					emailVerified: true,
@@ -33,12 +40,14 @@ async function seed() {
 		// Create account entries with hashed passwords for email/password auth
 		await db.insert(account).values([
 			{
+				id: generateId(),
 				accountId: hostUser.email,
 				providerId: "credential",
 				userId: hostUser.id,
 				password: hashPassword("password123"),
 			},
 			{
+				id: generateId(),
 				accountId: guestUser.email,
 				providerId: "credential",
 				userId: guestUser.id,

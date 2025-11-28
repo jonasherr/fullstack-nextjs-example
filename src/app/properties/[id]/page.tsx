@@ -1,10 +1,12 @@
 import { Bed, MapPin, Users } from "lucide-react";
 import { notFound } from "next/navigation";
 import { BookingForm } from "@/components/booking/booking-form";
+import { LoginToBookCard } from "@/components/booking/login-to-book-card";
 import { Header } from "@/components/navigation/header";
 import { PropertyCarousel } from "@/components/property/property-carousel";
 import { Separator } from "@/components/ui/separator";
-import { getPropertyById, getUserByEmail } from "@/db/queries";
+import { getPropertyById } from "@/db/queries";
+import { getSession } from "@/lib/auth-server";
 
 export default async function PropertyPage({
   params,
@@ -18,11 +20,7 @@ export default async function PropertyPage({
     notFound();
   }
 
-  // TODO: Replace with actual session user ID in Phase 6
-  const guestUser = await getUserByEmail("guest@example.com");
-  if (!guestUser) {
-    throw new Error("Guest user not found");
-  }
+  const session = await getSession();
 
   return (
     <>
@@ -64,12 +62,19 @@ export default async function PropertyPage({
           </div>
 
           <div>
-            <BookingForm
-              propertyId={property.id}
-              guestId={guestUser.id}
-              pricePerNight={property.pricePerNight}
-              maxGuests={property.maxGuests}
-            />
+            {session?.user ? (
+              <BookingForm
+                propertyId={property.id}
+                guestId={session.user.id}
+                pricePerNight={property.pricePerNight}
+                maxGuests={property.maxGuests}
+              />
+            ) : (
+              <LoginToBookCard
+                pricePerNight={property.pricePerNight}
+                propertyId={property.id}
+              />
+            )}
           </div>
         </div>
       </main>
