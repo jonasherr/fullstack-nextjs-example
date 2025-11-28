@@ -1,6 +1,6 @@
 import { db } from "./index";
-import { properties, bookings, user } from "./schema";
-import { eq, and, gte, lte, sql } from "drizzle-orm";
+import { properties, bookings, user, favorites } from "./schema";
+import { eq, and, gte, lte, sql, desc, count } from "drizzle-orm";
 import type { Property, Booking } from "@/lib/types";
 
 // Transform database property to UI Property type (with address object)
@@ -241,4 +241,48 @@ export async function getUserByEmail(email: string) {
 		.limit(1);
 
 	return result[0];
+}
+
+// ==================== Favorite Queries ====================
+
+// Check if a property is favorited by a user
+export async function isFavorited(
+	userId: string,
+	propertyId: number,
+): Promise<boolean> {
+	const result = await db
+		.select()
+		.from(favorites)
+		.where(and(eq(favorites.userId, userId), eq(favorites.propertyId, propertyId)))
+		.limit(1);
+
+	return result.length > 0;
+}
+
+// Get all properties favorited by a user
+export async function getFavoritesByUserId(userId: string) {
+	const result = await db
+		.select({
+			property: properties,
+			favoritedAt: favorites.createdAt,
+		})
+		.from(favorites)
+		.innerJoin(properties, eq(favorites.propertyId, properties.id))
+		.where(eq(favorites.userId, userId))
+		.orderBy(desc(favorites.createdAt));
+
+	return result.map((row) => ({
+		property: transformProperty(row.property),
+		favoritedAt: row.favoritedAt.toISOString(),
+	}));
+}
+
+// Get favorite count for a property (optional - for analytics)
+export async function getFavoriteCount(propertyId: number): Promise<number> {
+	const result = await db
+		.select({ count: count() })
+		.from(favorites)
+		.where(eq(favorites.propertyId, propertyId));
+
+	return result[0]?.count ?? 0;
 }

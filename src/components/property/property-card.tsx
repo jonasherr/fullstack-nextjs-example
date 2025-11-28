@@ -3,12 +3,15 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Property } from "@/lib/types";
+import { FavoriteButton } from "@/components/property/favorite-button";
 
 interface PropertyCardProps {
   property: Property;
+  userId?: string;
+  isFavorited?: boolean;
 }
 
-export function PropertyCard({ property }: PropertyCardProps) {
+export function PropertyCard({ property, userId, isFavorited = false }: PropertyCardProps) {
   return (
     <Link href={`/properties/${property.id}`}>
       <Card className="group cursor-pointer overflow-hidden border-none shadow-sm transition-shadow hover:shadow-md">
@@ -20,6 +23,16 @@ export function PropertyCard({ property }: PropertyCardProps) {
             className="object-cover transition-transform group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
+
+          {/* Favorite button - absolute positioned on image */}
+          <div className="absolute top-2 right-2 z-10">
+            <FavoriteButton
+              propertyId={property.id}
+              initialFavorited={isFavorited}
+              userId={userId}
+              className="bg-white/90 hover:bg-white"
+            />
+          </div>
         </div>
 
         <CardContent className="p-3">

@@ -11,6 +11,7 @@ import {
 	date,
 	index,
 	boolean,
+	primaryKey,
 } from "drizzle-orm/pg-core";
 
 // Enums
@@ -151,6 +152,24 @@ export const bookings = pgTable(
 	}),
 );
 
+// Favorites table (many-to-many relationship)
+export const favorites = pgTable(
+	"favorites",
+	{
+		userId: text("user_id")
+			.notNull()
+			.references(() => user.id, { onDelete: "cascade" }),
+		propertyId: integer("property_id")
+			.notNull()
+			.references(() => properties.id, { onDelete: "cascade" }),
+		createdAt: timestamp("created_at").notNull().defaultNow(),
+	},
+	(table) => ({
+		// Composite primary key prevents duplicate favorites
+		pk: primaryKey({ columns: [table.userId, table.propertyId] }),
+	}),
+);
+
 // Type exports for use in the application
 export type User = typeof user.$inferSelect;
 export type NewUser = typeof user.$inferInsert;
@@ -165,3 +184,5 @@ export type Property = typeof properties.$inferSelect;
 export type NewProperty = typeof properties.$inferInsert;
 export type Booking = typeof bookings.$inferSelect;
 export type NewBooking = typeof bookings.$inferInsert;
+export type Favorite = typeof favorites.$inferSelect;
+export type NewFavorite = typeof favorites.$inferInsert;

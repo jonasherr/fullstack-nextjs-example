@@ -1,6 +1,7 @@
 import { PropertyFilters } from "@/components/property/property-filters";
 import { PropertyGrid } from "@/components/property/property-grid";
-import { searchProperties } from "@/db/queries";
+import { searchProperties, getFavoritesByUserId } from "@/db/queries";
+import { getSession } from "@/lib/auth-server";
 
 interface HomePageProps {
   searchParams: Promise<{
@@ -22,6 +23,17 @@ export default async function HomePage({ searchParams }: HomePageProps) {
     maxPrice: maxPrice ? Number(maxPrice) : undefined,
     minGuests: guests ? Number(guests) : undefined,
   });
+
+  // Fetch user's favorites if logged in
+  const session = await getSession();
+  const favoriteProperties = session?.user
+    ? await getFavoritesByUserId(session.user.id)
+    : [];
+
+  // Create Set for O(1) lookup
+  const favoritedIds = new Set(
+    favoriteProperties.map((fav) => fav.property.id)
+  );
 
   const hasFilters = location || minPrice || maxPrice || guests;
 
@@ -48,7 +60,11 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               : "Explore stays"}
           </h2>
         </div>
-        <PropertyGrid properties={filteredProperties} />
+        <PropertyGrid
+          properties={filteredProperties}
+          userId={session?.user?.id}
+          favoritedIds={favoritedIds}
+        />
       </section>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Menu } from "lucide-react";
+import { LogOut, Menu, Heart } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,9 @@ export function Header() {
               </Link>
               <Link href="/guest/bookings">
                 <Button variant="ghost">My Bookings</Button>
+              </Link>
+              <Link href="/guest/favorites">
+                <Button variant="ghost">My Favorites</Button>
               </Link>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -92,6 +95,12 @@ export function Header() {
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
                   <Link href="/guest/bookings">My Bookings</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/guest/favorites">
+                    <Heart className="h-4 w-4 mr-2" />
+                    My Favorites
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
