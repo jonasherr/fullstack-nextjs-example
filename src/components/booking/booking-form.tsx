@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import type { DateRange } from "react-day-picker";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -16,12 +16,15 @@ import {
 import { createBooking } from "@/app/actions/bookings";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import type { Booking } from "@/lib/types";
+import { getDisabledDatesFromBookings } from "@/lib/date-utils";
 
 interface BookingFormProps {
   propertyId: string;
   guestId?: string;
   pricePerNight: number;
   maxGuests: number;
+  acceptedBookings: Booking[];
 }
 
 export function BookingForm({
@@ -29,11 +32,31 @@ export function BookingForm({
   guestId,
   pricePerNight,
   maxGuests,
+  acceptedBookings,
 }: BookingFormProps) {
   const router = useRouter();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [guests, setGuests] = useState("1");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Calculate disabled dates from accepted bookings (memoized for performance)
+  const disabledDates = useMemo(() => {
+    return getDisabledDatesFromBookings(acceptedBookings);
+  }, [acceptedBookings]);
+
+  // Enhanced disabled date checker - combines past dates and booked dates
+  const isDateDisabled = (date: Date) => {
+    // Disable past dates
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date < today) return true;
+
+    // Disable booked dates
+    return disabledDates.some(
+      (disabledDate) =>
+        disabledDate.toDateString() === date.toDateString()
+    );
+  };
 
   const nights =
     dateRange?.from && dateRange?.to
@@ -58,17 +81,19 @@ export function BookingForm({
 
     setIsSubmitting(true);
     try {
+      // Format dates in local timezone to avoid timezone shift issues
+      const formatLocalDate = (date: Date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
       const formData = new FormData();
       formData.append("propertyId", propertyId);
       formData.append("guestId", guestId);
-      formData.append(
-        "checkInDate",
-        dateRange.from.toISOString().split("T")[0],
-      );
-      formData.append(
-        "checkOutDate",
-        dateRange.to.toISOString().split("T")[0],
-      );
+      formData.append("checkInDate", formatLocalDate(dateRange.from));
+      formData.append("checkOutDate", formatLocalDate(dateRange.to));
       formData.append("totalPrice", total.toString());
 
       const result = await createBooking(formData);
@@ -105,7 +130,7 @@ export function BookingForm({
             selected={dateRange}
             onSelect={setDateRange}
             numberOfMonths={1}
-            disabled={(date) => date < new Date()}
+            disabled={isDateDisabled}
             className="rounded-md border"
           />
         </div>

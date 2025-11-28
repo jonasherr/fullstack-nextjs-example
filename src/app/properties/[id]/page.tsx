@@ -6,7 +6,10 @@ import { PropertyBookingsSection } from "@/components/booking/property-bookings-
 import { Header } from "@/components/navigation/header";
 import { PropertyCarousel } from "@/components/property/property-carousel";
 import { Separator } from "@/components/ui/separator";
-import { getPropertyById } from "@/db/queries";
+import {
+	getPropertyById,
+	getAcceptedBookingsForProperty,
+} from "@/db/queries";
 import { getSession } from "@/lib/auth-server";
 
 export default async function PropertyPage({
@@ -23,6 +26,9 @@ export default async function PropertyPage({
 
   const session = await getSession();
   const isHost = session?.user && property.hostId === session.user.id;
+
+  // Fetch accepted bookings for availability checking
+  const acceptedBookings = await getAcceptedBookingsForProperty(id);
 
   return (
     <>
@@ -70,6 +76,7 @@ export default async function PropertyPage({
                 guestId={session.user.id}
                 pricePerNight={property.pricePerNight}
                 maxGuests={property.maxGuests}
+                acceptedBookings={acceptedBookings}
               />
             ) : (
               <LoginToBookCard

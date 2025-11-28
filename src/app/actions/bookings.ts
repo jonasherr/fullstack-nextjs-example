@@ -6,7 +6,12 @@ import { insertBookingSchema, updateBookingStatusSchema } from "@/lib/schemas";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 import { getSession } from "@/lib/auth-server";
-import { getBookingById, getPropertyById } from "@/db/queries";
+import {
+	getBookingById,
+	getPropertyById,
+	getAcceptedBookingsForProperty,
+} from "@/db/queries";
+import { checkBookingOverlap } from "@/lib/date-utils";
 
 export async function createBooking(formData: FormData) {
 	try {
@@ -39,6 +44,25 @@ export async function createBooking(formData: FormData) {
 
 		// Validate with Zod schema
 		const validatedData = insertBookingSchema.parse(rawData);
+
+		// Check for booking conflicts with accepted bookings
+		const acceptedBookings = await getAcceptedBookingsForProperty(
+			rawData.propertyId.toString(),
+		);
+
+		const hasConflict = checkBookingOverlap(
+			validatedData.checkInDate,
+			validatedData.checkOutDate,
+			acceptedBookings,
+		);
+
+		if (hasConflict) {
+			return {
+				success: false,
+				error:
+					"These dates are no longer available. Please select different dates.",
+			};
+		}
 
 		// Insert into database
 		const [newBooking] = await db
