@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, lte, or, sql } from "drizzle-orm";
 import type { Booking, Property } from "@/lib/types";
 import { db } from "./index";
 import { bookings, favorites, properties, user } from "./schema";
@@ -77,9 +77,14 @@ export async function searchProperties(filters: {
 }): Promise<Property[]> {
   const conditions = [eq(properties.status, "active")];
 
-  // City filter (case-insensitive)
+  // Location filter (searches both city and state, case-insensitive partial match)
   if (filters.city) {
-    conditions.push(sql`LOWER(${properties.city}) = LOWER(${filters.city})`);
+    conditions.push(
+      or(
+        sql`${properties.city} ILIKE ${`%${filters.city}%`}`,
+        sql`${properties.state} ILIKE ${`%${filters.city}%`}`,
+      )!,
+    );
   }
 
   // Price range filter
