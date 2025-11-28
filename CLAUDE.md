@@ -93,3 +93,32 @@ Performance is a top priority, driving the following rendering decisions:
 ## TypeScript
 - Don't unnecessarily add 'try' /'catch'
 - Don't cast to 'any'
+
+## 6. Feature-Specific Patterns
+
+### Favorites Feature
+
+**Database Schema**:
+- Junction table: `favorites` with composite primary key (userId, propertyId)
+- Prevents duplicate favorites at database level
+- Foreign keys cascade on delete (cleanup when user/property deleted)
+
+**Server Actions**:
+- `toggleFavorite(propertyId)`: Toggle favorite status (idempotent)
+- Pattern: Check auth → Verify property exists → Check existing favorite → Insert or delete → Revalidate paths
+
+**UI Components**:
+- `FavoriteButton`: Client component with heart icon
+- Uses `useOptimistic` for instant UI feedback
+- Props: propertyId, initialFavorited, size variant
+- Handles both favorited and unfavorited states
+
+**Authorization**:
+- All favorite operations require authentication
+- Users can only manage their own favorites
+- Server actions verify user session before database operations
+
+**Queries**:
+- `getFavoritesByUserId(userId)`: Returns properties user has favorited
+- `isFavorited(userId, propertyId)`: Check if specific property is favorited
+- Join favorites table with properties for favorites page

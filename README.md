@@ -86,6 +86,7 @@ bun run format   # Format code with Biome
 - Browse and search properties
 - Filter by location, price, guests
 - View property details and availability
+- Save interesting properties to favorites
 - Submit booking requests
 - Manage bookings
 
@@ -94,6 +95,12 @@ bun run format   # Format code with Biome
 - View booking requests
 - Accept or decline bookings
 - Track all bookings for properties
+
+### User Favorites
+- Save interesting properties to favorites
+- Toggle favorites from search results and detail pages
+- Dedicated "My Favorites" page for easy access
+- Persistent favorites across sessions
 
 ## Environment Variables (Coming soon)
 
@@ -114,6 +121,7 @@ BETTER_AUTH_URL=       # Application URL
 - `/host/bookings` - Host's booking requests
 - `/host/new` - Create new property
 - `/guest/bookings` - Guest's bookings
+- `/guest/favorites` - Guest's saved properties
 
 ## Contributing
 

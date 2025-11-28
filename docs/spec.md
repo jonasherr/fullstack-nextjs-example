@@ -40,7 +40,48 @@ This document defines the functional and technical requirements for the BeeBnB M
 | **H-1** | As a Host, I can **create a new property listing**. | I must submit the following required fields: **Name, Description, Address, Price per Night, Max Guests, Number of Bedrooms**, and provide **1 to 10 images**. |
 | **H-2** | As a Host, I can **update an existing property listing**. | I can modify any field on my active listing. |
 
-### 3.4. Booking Management (Guest & Host)
+### 3.4. Property Favorites
+
+**User Story**: As a logged-in user, I want to save properties to my favorites so I can easily find and compare them later.
+
+**Acceptance Criteria**:
+- Users must be logged in to favorite properties
+- Heart icon button appears on:
+  - Property cards in search results
+  - Property detail pages
+- Visual feedback when favorited (filled heart vs outline)
+- Clicking heart toggles favorite status
+- "My Favorites" page shows all saved properties
+- Favorites persist across sessions
+- Users can only manage their own favorites
+- No duplicate favorites allowed (enforced at database level)
+
+**User Flows**:
+1. **Adding a Favorite**:
+   - User clicks heart icon on property card/detail page
+   - Icon fills in, indicating favorited status
+   - Toast notification: "Added to favorites"
+   - Property appears in "My Favorites" page
+
+2. **Removing a Favorite**:
+   - User clicks filled heart icon
+   - Icon becomes outline, indicating not favorited
+   - Toast notification: "Removed from favorites"
+   - Property removed from "My Favorites" page
+
+3. **Viewing Favorites**:
+   - User navigates to "My Favorites" from navigation menu
+   - See all favorited properties in grid layout
+   - Each card shows favorite status (filled heart)
+   - Empty state message if no favorites yet
+
+**Non-Functional Requirements**:
+- Heart icon toggle must be responsive (< 300ms)
+- Favorites page loads in < 2 seconds
+- Optimistic UI updates (instant visual feedback)
+- Server-side validation prevents race conditions
+
+### 3.5. Booking Management (Guest & Host)
 
 | ID | User Story | Acceptance Criteria |
 | :--- | :--- | :--- |
