@@ -1,0 +1,15 @@
+import { SignupForm } from "@/components/forms/signup-form";
+
+export default function SignupPage() {
+  return (
+    <div className="space-y-6">
+      <div className="space-y-2 text-center">
+        <h1 className="text-3xl font-bold">Create an account</h1>
+        <p className="text-muted-foreground">
+          Join BeeBnB and start your journey
+        </p>
+      </div>
+      <SignupForm />
+    </div>
+  );
+}
