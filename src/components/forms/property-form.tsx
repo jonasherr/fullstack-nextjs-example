@@ -4,6 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -15,6 +16,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { createProperty } from "@/app/actions/properties";
+import { toast } from "sonner";
 
 const formSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -34,8 +37,13 @@ const formSchema = z.object({
 
 type FormData = z.infer<typeof formSchema>;
 
-export function PropertyForm() {
+interface PropertyFormProps {
+  hostId: string;
+}
+
+export function PropertyForm({ hostId }: PropertyFormProps) {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,10 +63,43 @@ export function PropertyForm() {
     },
   });
 
-  function onSubmit(data: FormData) {
-    console.log("Form data:", data);
-    alert("Property created successfully! (Mock submission)");
-    router.push("/host/listings");
+  async function onSubmit(data: FormData) {
+    setIsSubmitting(true);
+    try {
+      // Collect images into array
+      const images = [data.image1];
+      if (data.image2) images.push(data.image2);
+      if (data.image3) images.push(data.image3);
+
+      // Create FormData for Server Action
+      const formData = new FormData();
+      formData.append("hostId", hostId);
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("street", data.street);
+      formData.append("city", data.city);
+      formData.append("state", data.state);
+      formData.append("country", data.country);
+      formData.append("zipCode", data.zipCode);
+      formData.append("pricePerNight", data.pricePerNight.toString());
+      formData.append("maxGuests", data.maxGuests.toString());
+      formData.append("numBedrooms", data.numBedrooms.toString());
+      formData.append("images", JSON.stringify(images));
+
+      const result = await createProperty(formData);
+
+      if (result.success) {
+        toast.success("Property created successfully!");
+        router.push("/host/listings");
+      } else {
+        toast.error(result.error || "Failed to create property");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -284,8 +325,15 @@ export function PropertyForm() {
         </section>
 
         <div className="flex gap-4">
-          <Button type="submit">Create Listing</Button>
-          <Button type="button" variant="outline" onClick={() => router.back()}>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? "Creating..." : "Create Listing"}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => router.back()}
+            disabled={isSubmitting}
+          >
             Cancel
           </Button>
         </div>

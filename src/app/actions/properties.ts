@@ -1,0 +1,120 @@
+"use server";
+
+import { db } from "@/db";
+import { properties } from "@/db/schema";
+import { insertPropertySchema } from "@/lib/schemas";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
+import { eq } from "drizzle-orm";
+
+export async function createProperty(formData: FormData) {
+	try {
+		// Extract data from FormData
+		const rawData = {
+			hostId: formData.get("hostId") as string,
+			name: formData.get("name") as string,
+			description: formData.get("description") as string,
+			street: formData.get("street") as string,
+			city: formData.get("city") as string,
+			state: formData.get("state") as string,
+			country: (formData.get("country") as string) || "USA",
+			zipCode: formData.get("zipCode") as string,
+			pricePerNight: formData.get("pricePerNight") as string,
+			maxGuests: Number(formData.get("maxGuests")),
+			numBedrooms: Number(formData.get("numBedrooms")),
+			images: JSON.parse(formData.get("images") as string) as string[],
+			status: "active" as const,
+		};
+
+		// Validate with Zod schema
+		const validatedData = insertPropertySchema.parse(rawData);
+
+		// Insert into database
+		const [newProperty] = await db
+			.insert(properties)
+			.values(validatedData)
+			.returning();
+
+		// Revalidate the host listings page
+		revalidatePath("/host/listings");
+
+		return {
+			success: true,
+			propertyId: newProperty.id.toString(),
+		};
+	} catch (error) {
+		console.error("Error creating property:", error);
+		return {
+			success: false,
+			error:
+				error instanceof Error ? error.message : "Failed to create property",
+		};
+	}
+}
+
+export async function updateProperty(propertyId: string, formData: FormData) {
+	try {
+		// Extract data from FormData
+		const rawData = {
+			name: formData.get("name") as string,
+			description: formData.get("description") as string,
+			street: formData.get("street") as string,
+			city: formData.get("city") as string,
+			state: formData.get("state") as string,
+			country: (formData.get("country") as string) || "USA",
+			zipCode: formData.get("zipCode") as string,
+			pricePerNight: formData.get("pricePerNight") as string,
+			maxGuests: Number(formData.get("maxGuests")),
+			numBedrooms: Number(formData.get("numBedrooms")),
+			images: JSON.parse(formData.get("images") as string) as string[],
+		};
+
+		// Validate with Zod schema (omit hostId since we're updating)
+		const validatedData = insertPropertySchema
+			.omit({ hostId: true })
+			.parse(rawData);
+
+		// Update in database
+		await db
+			.update(properties)
+			.set(validatedData)
+			.where(eq(properties.id, Number.parseInt(propertyId)));
+
+		// Revalidate pages
+		revalidatePath("/host/listings");
+		revalidatePath(`/properties/${propertyId}`);
+
+		return {
+			success: true,
+		};
+	} catch (error) {
+		console.error("Error updating property:", error);
+		return {
+			success: false,
+			error:
+				error instanceof Error ? error.message : "Failed to update property",
+		};
+	}
+}
+
+export async function deleteProperty(propertyId: string) {
+	try {
+		await db
+			.delete(properties)
+			.where(eq(properties.id, Number.parseInt(propertyId)));
+
+		// Revalidate the host listings page
+		revalidatePath("/host/listings");
+
+		return {
+			success: true,
+		};
+	} catch (error) {
+		console.error("Error deleting property:", error);
+		return {
+			success: false,
+			error:
+				error instanceof Error ? error.message : "Failed to delete property",
+		};
+	}
+}

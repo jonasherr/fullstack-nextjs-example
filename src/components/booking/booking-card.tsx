@@ -3,10 +3,13 @@
 import { format } from "date-fns";
 import { Calendar } from "lucide-react";
 import Image from "next/image";
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Booking, Property } from "@/lib/types";
+import { acceptBooking, declineBooking } from "@/app/actions/bookings";
+import { toast } from "sonner";
 
 interface BookingCardProps {
   booking: Booking;
@@ -21,6 +24,8 @@ export function BookingCard({
   guestName,
   showActions,
 }: BookingCardProps) {
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const statusColors = {
     pending: "bg-yellow-500",
     accepted: "bg-green-500",
@@ -28,12 +33,38 @@ export function BookingCard({
     canceled: "bg-gray-500",
   };
 
-  function handleAccept() {
-    alert("Booking accepted! (Mock action)");
+  async function handleAccept() {
+    setIsProcessing(true);
+    try {
+      const result = await acceptBooking(booking.id);
+      if (result.success) {
+        toast.success("Booking accepted successfully!");
+      } else {
+        toast.error(result.error || "Failed to accept booking");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+      console.error(error);
+    } finally {
+      setIsProcessing(false);
+    }
   }
 
-  function handleDecline() {
-    alert("Booking declined! (Mock action)");
+  async function handleDecline() {
+    setIsProcessing(true);
+    try {
+      const result = await declineBooking(booking.id);
+      if (result.success) {
+        toast.success("Booking declined");
+      } else {
+        toast.error(result.error || "Failed to decline booking");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+      console.error(error);
+    } finally {
+      setIsProcessing(false);
+    }
   }
 
   return (
@@ -76,11 +107,17 @@ export function BookingCard({
                   onClick={handleAccept}
                   size="sm"
                   className="bg-green-600 hover:bg-green-700"
+                  disabled={isProcessing}
                 >
-                  Accept
+                  {isProcessing ? "Processing..." : "Accept"}
                 </Button>
-                <Button onClick={handleDecline} size="sm" variant="destructive">
-                  Decline
+                <Button
+                  onClick={handleDecline}
+                  size="sm"
+                  variant="destructive"
+                  disabled={isProcessing}
+                >
+                  {isProcessing ? "Processing..." : "Decline"}
                 </Button>
               </div>
             )}

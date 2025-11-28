@@ -4,7 +4,7 @@ import { BookingForm } from "@/components/booking/booking-form";
 import { Header } from "@/components/navigation/header";
 import { PropertyCarousel } from "@/components/property/property-carousel";
 import { Separator } from "@/components/ui/separator";
-import { getPropertyById } from "@/db/queries";
+import { getPropertyById, getUserByEmail } from "@/db/queries";
 
 export default async function PropertyPage({
   params,
@@ -16,6 +16,12 @@ export default async function PropertyPage({
 
   if (!property) {
     notFound();
+  }
+
+  // TODO: Replace with actual session user ID in Phase 6
+  const guestUser = await getUserByEmail("guest@example.com");
+  if (!guestUser) {
+    throw new Error("Guest user not found");
   }
 
   return (
@@ -60,6 +66,7 @@ export default async function PropertyPage({
           <div>
             <BookingForm
               propertyId={property.id}
+              guestId={guestUser.id}
               pricePerNight={property.pricePerNight}
               maxGuests={property.maxGuests}
             />

@@ -13,16 +13,27 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { createBooking } from "@/app/actions/bookings";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface BookingFormProps {
   propertyId: string;
+  guestId: string;
   pricePerNight: number;
   maxGuests: number;
 }
 
-export function BookingForm({ pricePerNight, maxGuests }: BookingFormProps) {
+export function BookingForm({
+  propertyId,
+  guestId,
+  pricePerNight,
+  maxGuests,
+}: BookingFormProps) {
+  const router = useRouter();
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [guests, setGuests] = useState("1");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const nights =
     dateRange?.from && dateRange?.to
@@ -33,8 +44,41 @@ export function BookingForm({ pricePerNight, maxGuests }: BookingFormProps) {
       : 0;
   const total = nights * pricePerNight;
 
-  function handleReserve() {
-    alert("Mock booking created! (No real reservation)");
+  async function handleReserve() {
+    if (!dateRange?.from || !dateRange?.to) {
+      toast.error("Please select check-in and check-out dates");
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const formData = new FormData();
+      formData.append("propertyId", propertyId);
+      formData.append("guestId", guestId);
+      formData.append(
+        "checkInDate",
+        dateRange.from.toISOString().split("T")[0],
+      );
+      formData.append(
+        "checkOutDate",
+        dateRange.to.toISOString().split("T")[0],
+      );
+      formData.append("totalPrice", total.toString());
+
+      const result = await createBooking(formData);
+
+      if (result.success) {
+        toast.success("Booking request submitted successfully!");
+        router.push("/guest/bookings");
+      } else {
+        toast.error(result.error || "Failed to create booking");
+      }
+    } catch (error) {
+      toast.error("An unexpected error occurred");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -94,13 +138,10 @@ export function BookingForm({ pricePerNight, maxGuests }: BookingFormProps) {
         <Button
           onClick={handleReserve}
           className="w-full"
-          disabled={!dateRange?.from || !dateRange?.to}
+          disabled={!dateRange?.from || !dateRange?.to || isSubmitting}
         >
-          Reserve
+          {isSubmitting ? "Submitting..." : "Reserve"}
         </Button>
-        <p className="text-xs text-center text-muted-foreground">
-          Mock booking - no real reservation
-        </p>
       </CardContent>
     </Card>
   );
