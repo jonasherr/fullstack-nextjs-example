@@ -2,6 +2,7 @@ import { Bed, MapPin, Users } from "lucide-react";
 import { notFound } from "next/navigation";
 import { BookingForm } from "@/components/booking/booking-form";
 import { LoginToBookCard } from "@/components/booking/login-to-book-card";
+import { PropertyBookingsSection } from "@/components/booking/property-bookings-section";
 import { Header } from "@/components/navigation/header";
 import { PropertyCarousel } from "@/components/property/property-carousel";
 import { Separator } from "@/components/ui/separator";
@@ -21,6 +22,7 @@ export default async function PropertyPage({
   }
 
   const session = await getSession();
+  const isHost = session?.user && property.hostId === session.user.id;
 
   return (
     <>
@@ -77,6 +79,13 @@ export default async function PropertyPage({
             )}
           </div>
         </div>
+
+        {isHost && (
+          <>
+            <Separator className="my-12" />
+            <PropertyBookingsSection propertyId={property.id} />
+          </>
+        )}
       </main>
     </>
   );

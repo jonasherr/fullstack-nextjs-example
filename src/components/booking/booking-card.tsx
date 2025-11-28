@@ -10,12 +10,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import type { Booking, Property } from "@/lib/types";
 import { acceptBooking, declineBooking } from "@/app/actions/bookings";
 import { toast } from "sonner";
+import { CancelBookingDialog } from "./cancel-booking-dialog";
 
 interface BookingCardProps {
   booking: Booking;
   property: Property;
   guestName: string;
   showActions?: boolean;
+  showCancelAction?: boolean;
 }
 
 export function BookingCard({
@@ -23,8 +25,10 @@ export function BookingCard({
   property,
   guestName,
   showActions,
+  showCancelAction,
 }: BookingCardProps) {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   const statusColors = {
     pending: "bg-yellow-500",
@@ -121,9 +125,29 @@ export function BookingCard({
                 </Button>
               </div>
             )}
+
+            {showCancelAction && (
+              <div className="pt-2">
+                <Button
+                  onClick={() => setShowCancelDialog(true)}
+                  size="sm"
+                  variant="outline"
+                  className="text-destructive hover:text-destructive"
+                >
+                  Cancel Booking
+                </Button>
+              </div>
+            )}
           </div>
         </div>
       </CardContent>
+
+      <CancelBookingDialog
+        booking={booking}
+        guestName={guestName}
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+      />
     </Card>
   );
 }

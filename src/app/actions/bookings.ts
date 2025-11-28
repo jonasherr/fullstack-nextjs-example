@@ -101,11 +101,19 @@ export async function updateBookingStatus(
 
 		// Authorization checks based on action
 		if (status === "canceled") {
-			// Only the guest can cancel their own booking
-			if (booking.guestId !== session.user.id) {
+			// Guests can cancel their own bookings (any status)
+			const isGuest = booking.guestId === session.user.id;
+
+			// Hosts can ONLY cancel accepted bookings
+			const isHostCancelingAccepted =
+				property.hostId === session.user.id &&
+				booking.status === "accepted";
+
+			if (!isGuest && !isHostCancelingAccepted) {
 				return {
 					success: false,
-					error: "Unauthorized: You can only cancel your own bookings",
+					error:
+						"Unauthorized: You can only cancel your own bookings or accepted bookings on your properties",
 				};
 			}
 		} else if (status === "accepted" || status === "declined") {
@@ -128,6 +136,7 @@ export async function updateBookingStatus(
 		// Revalidate relevant pages
 		revalidatePath("/host/bookings");
 		revalidatePath("/guest/bookings");
+		revalidatePath(`/properties/${booking.propertyId}`);
 
 		return {
 			success: true,
