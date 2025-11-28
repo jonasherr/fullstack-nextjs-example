@@ -1,36 +1,120 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BeeBnB - Airbnb Clone MVP
+
+Modern property rental platform built with Next.js 16 and Better-Auth.
+
+## Tech Stack
+
+- **Framework:** Next.js 16+ (App Router, React Server Components)
+- **Database:** PostgreSQL (Neon) with Drizzle ORM *(Coming soon)*
+- **Authentication:** Better-Auth *(UI implemented, integration pending)*
+- **Styling:** Tailwind CSS v4 + shadcn/ui
+- **Language:** TypeScript
+- **Package Manager:** Bun
+- **Code Quality:** Biome (formatting + linting)
+
+## Current Status
+
+**Implemented:**
+- Full UI for all pages (Homepage, Search, Property Details, Host/Guest Dashboards, Auth)
+- Mock data system with 10 properties and 5 bookings
+- Responsive design (mobile, tablet, desktop)
+- Form validation with React Hook Form + Zod
+
+**In Progress:**
+- Database integration (Drizzle + Neon)
+- Better-Auth setup
+- Server Actions for mutations
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── (auth)/          # Login and signup pages
+│   ├── (marketing)/     # Homepage and search
+│   ├── guest/           # Guest bookings dashboard
+│   ├── host/            # Host dashboards (listings, bookings, new)
+│   └── properties/      # Property detail pages
+├── components/
+│   ├── forms/           # Login, Signup, Property forms
+│   ├── navigation/      # Header component
+│   ├── property/        # Property cards, filters, carousel
+│   ├── booking/         # Booking form and card
+│   └── ui/              # shadcn/ui components
+└── lib/
+    ├── types.ts         # TypeScript interfaces
+    └── mock-data.ts     # Mock properties and bookings
+```
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- [Bun](https://bun.sh/) installed
+- Node.js 18+
+
+### Installation
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install dependencies
+bun install
+
+# Run development server
+bun run dev
+
+# Open http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Available Scripts
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+bun run dev      # Start development server
+bun run build    # Build for production
+bun run start    # Start production server
+bun run lint     # Run Biome linter
+bun run format   # Format code with Biome
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Documentation
 
-## Learn More
+- **Architecture & Standards:** See [CLAUDE.md](./CLAUDE.md)
+- **Full Specification:** See [docs/spec.md](./docs/spec.md)
 
-To learn more about Next.js, take a look at the following resources:
+## Features
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### For Guests
+- Browse and search properties
+- Filter by location, price, guests
+- View property details and availability
+- Submit booking requests
+- Manage bookings
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### For Hosts
+- Create and manage property listings
+- View booking requests
+- Accept or decline bookings
+- Track all bookings for properties
 
-## Deploy on Vercel
+## Environment Variables (Coming soon)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```env
+DATABASE_URL=          # Neon PostgreSQL connection string
+BETTER_AUTH_SECRET=    # Better-Auth session secret
+BETTER_AUTH_URL=       # Application URL
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Routes
+
+- `/` - Homepage with property listings and search
+- `/login` - User login
+- `/signup` - User registration
+- `/properties/[id]` - Property details
+- `/search` - Search results
+- `/host/listings` - Host's properties
+- `/host/bookings` - Host's booking requests
+- `/host/new` - Create new property
+- `/guest/bookings` - Guest's bookings
+
+## Contributing
+
+Please read [CLAUDE.md](./CLAUDE.md) for development standards and patterns.

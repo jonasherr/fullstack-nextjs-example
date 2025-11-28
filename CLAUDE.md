@@ -1,6 +1,24 @@
 # BeeBnB Technology Stack and Architectural Decisions
 
-Additionall informations/specs can be found in `/docs/**`.
+Additional informations/specs can be found in `/docs/**`.
+
+## Current Implementation Status
+
+**Note:** The application currently runs with mock data (`src/lib/mock-data.ts`) for development and testing. Database integration and authentication are planned for the next phase.
+
+**Completed:**
+- All UI pages and components
+- TypeScript types matching database schema
+- Form validation (Zod schemas)
+- Responsive design
+
+**Pending:**
+- Drizzle schema implementation
+- Neon database connection
+- Better-Auth integration
+- Server Actions for mutations
+
+---
 
 This document outlines the core technologies and architectural patterns chosen for the BeeBnB MVP. All development must adhere to this stack unless explicitly approved changes are made to the main Specification Document.
 

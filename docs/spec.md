@@ -22,7 +22,7 @@ This document defines the functional and technical requirements for the BeeBnB M
 
 | ID | User Story | Acceptance Criteria |
 | :--- | :--- | :--- |
-| **G-1** | As a user, I can **register** and **log in/log out**. | Authentication is handled by Clerk using email and password. |
+| **G-1** | As a user, I can **register** and **log in/log out**. | Authentication is handled by Better-Auth using email and password. |
 | **G-2** | As any user, I can **view all listed properties**. | The homepage displays an initial feed of all currently active property listings. |
 
 ### 3.2. Search & Browsing
@@ -61,7 +61,7 @@ This document defines the functional and technical requirements for the BeeBnB M
 | **Framework** | **Next.js 16+** | Primary application framework utilizing RSCs, Caching, and Server Actions. |
 | **Database** | **Postgres (Neon)** | The core relational data store. |
 | **ORM** | **Drizzle** | Type-safe schema definition and querying. |
-| **Authentication** | **Clerk** | Authentication and user session management. |
+| **Authentication** | **Better-Auth** | Email/Password authentication and session management. |
 | **Styling** | **Tailwind CSS & shadcn/ui** | Component library and utility-first styling for UI development. |
 
 ### 4.2. Next.js Rendering Strategy
@@ -88,13 +88,21 @@ This document defines the functional and technical requirements for the BeeBnB M
 | Field | Type | Constraint / Description |
 | :--- | :--- | :--- |
 | `id` | Serial (PK) | Primary Key. |
-| `hostId` | UUID (FK) | Links to `users.clerkId`. |
+| `hostId` | UUID (FK) | Links to Better-Auth user ID. |
 | `name` | Varchar | Required. |
 | `description` | Text | Required. |
-| `address` | Varchar | Required (indexed for search). |
+| `street` | Varchar | Required. |
+| `city` | Varchar | Required (indexed for search). |
+| `state` | Varchar | Required. |
+| `country` | Varchar | Required. Default: 'USA'. |
+| `zipCode` | Varchar | Required. |
 | `pricePerNight` | Numeric | Required (indexed for range search). |
 | `maxGuests` | Integer | Required (indexed for filtering). |
 | `numBedrooms` | Integer | Required. |
+| `images` | Text[] | Array of 1-10 image URLs. Required (minimum 1). |
+| `status` | Enum | 'active' or 'inactive'. Default: 'active'. |
+| `createdAt` | Timestamp | Auto-generated creation timestamp. |
+| `updatedAt` | Timestamp | Auto-updated modification timestamp. |
 
 ### 5.2. `bookings` Table
 
@@ -102,23 +110,18 @@ This document defines the functional and technical requirements for the BeeBnB M
 | :--- | :--- | :--- |
 | `id` | Serial (PK) | Primary Key. |
 | `propertyId` | Integer (FK) | Links to `properties.id`. |
-| `guestId` | UUID (FK) | Links to `users.clerkId`. |
+| `guestId` | UUID (FK) | Links to Better-Auth user ID. |
 | `checkInDate` | Date | Required start date (indexed). |
 | `checkOutDate` | Date | Required end date (indexed). |
 | `status` | Enum | **Pending, Accepted, Declined, Canceled**. |
-
-### 5.3. `images` Table
-
-| Field | Type | Constraint / Description |
-| :--- | :--- | :--- |
-| `id` | Serial (PK) | Primary Key. |
-| `propertyId` | Integer (FK) | Links to `properties.id`. |
-| `url` | Varchar | URL to the stored image file. |
+| `totalPrice` | Numeric | Total booking price (calculated at creation). |
+| `createdAt` | Timestamp | Auto-generated creation timestamp. |
+| `updatedAt` | Timestamp | Auto-updated modification timestamp. |
 
 ---
 
 ## 6. Security Requirements
 
-* **Authentication:** Must be exclusively handled by the **Clerk** service.
+* **Authentication:** Must be exclusively handled by the **Better-Auth** service.
 * **Authorization:** All Server Actions must enforce role-based access control (e.g., only a logged-in Host can execute the `createProperty` action).
 * **Data Isolation:** Hosts can only see and modify their own listings and the bookings associated with them. Guests can only see their own bookings.
