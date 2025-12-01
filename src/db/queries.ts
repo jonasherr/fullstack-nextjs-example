@@ -172,6 +172,24 @@ export async function getBookingsByGuestId(
   return result.map(transformBooking);
 }
 
+// Get bookings with property details by guest ID (optimized - single query with join)
+export async function getBookingsWithPropertiesByGuestId(guestId: string) {
+  const result = await db
+    .select({
+      booking: bookings,
+      property: properties,
+    })
+    .from(bookings)
+    .innerJoin(properties, eq(bookings.propertyId, properties.id))
+    .where(eq(bookings.guestId, guestId))
+    .orderBy(bookings.createdAt);
+
+  return result.map((row) => ({
+    booking: transformBooking(row.booking),
+    property: transformProperty(row.property),
+  }));
+}
+
 // Get bookings for properties owned by a host
 export async function getBookingsByHostId(hostId: string): Promise<Booking[]> {
   const result = await db
