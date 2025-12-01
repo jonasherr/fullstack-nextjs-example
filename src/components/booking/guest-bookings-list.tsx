@@ -1,16 +1,11 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { BookingCard } from "@/components/booking/booking-card";
 import { Button } from "@/components/ui/button";
 import { getBookingsWithPropertiesByGuestId } from "@/db/queries";
-import { getSession } from "@/lib/auth-server";
+import { requireAuth } from "@/lib/auth-server";
 
 export async function GuestBookingsList() {
-  const session = await getSession();
-
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const session = await requireAuth();
 
   const bookingsWithDetails = await getBookingsWithPropertiesByGuestId(
     session.user.id,

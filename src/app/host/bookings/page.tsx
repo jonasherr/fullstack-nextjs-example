@@ -4,15 +4,10 @@ import {
   getPropertyById,
   getUserById,
 } from "@/db/queries";
-import { getSession } from "@/lib/auth-server";
-import { redirect } from "next/navigation";
+import { requireAuth } from "@/lib/auth-server";
 
 export default async function HostBookingsPage() {
-  const session = await getSession();
-
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const session = await requireAuth();
 
   const hostBookings = await getBookingsByHostId(session.user.id);
 

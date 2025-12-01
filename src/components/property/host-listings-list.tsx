@@ -1,14 +1,9 @@
-import { redirect } from "next/navigation";
 import { PropertyGrid } from "@/components/property/property-grid";
 import { getPropertiesByHostId } from "@/db/queries";
-import { getSession } from "@/lib/auth-server";
+import { requireAuth } from "@/lib/auth-server";
 
 export async function HostListingsList() {
-	const session = await getSession();
-
-	if (!session?.user) {
-		redirect("/login");
-	}
+	const session = await requireAuth();
 
 	const hostProperties = await getPropertiesByHostId(session.user.id);
 

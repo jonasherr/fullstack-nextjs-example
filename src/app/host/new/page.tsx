@@ -1,13 +1,8 @@
 import { PropertyForm } from "@/components/forms/property-form";
-import { getSession } from "@/lib/auth-server";
-import { redirect } from "next/navigation";
+import { requireAuth } from "@/lib/auth-server";
 
 export default async function NewPropertyPage() {
-  const session = await getSession();
-
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const session = await requireAuth();
 
   return (
     <div className="max-w-3xl mx-auto">

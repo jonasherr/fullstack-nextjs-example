@@ -1,17 +1,12 @@
 import { Heart } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { PropertyCard } from "@/components/property/property-card";
 import { Button } from "@/components/ui/button";
 import { getFavoritesByUserId } from "@/db/queries";
-import { getSession } from "@/lib/auth-server";
+import { requireAuth } from "@/lib/auth-server";
 
 export default async function FavoritesPage() {
-  const session = await getSession();
-
-  if (!session?.user) {
-    redirect("/login");
-  }
+  const session = await requireAuth();
 
   const favorites = await getFavoritesByUserId(session.user.id);
 
