@@ -57,6 +57,7 @@ export async function getAllProperties(): Promise<Property[]> {
 export async function getPropertyById(
   id: string,
 ): Promise<Property | undefined> {
+  "use cache";
   const result = await db
     .select()
     .from(properties)
@@ -255,13 +256,16 @@ export async function getUserByEmail(email: string) {
 // Check if a property is favorited by a user
 export async function isFavorited(
   userId: string,
-  propertyId: number,
+  propertyId: string,
 ): Promise<boolean> {
   const result = await db
     .select()
     .from(favorites)
     .where(
-      and(eq(favorites.userId, userId), eq(favorites.propertyId, propertyId)),
+      and(
+        eq(favorites.userId, userId),
+        eq(favorites.propertyId, parseInt(propertyId)),
+      ),
     )
     .limit(1);
 
