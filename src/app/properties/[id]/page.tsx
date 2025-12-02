@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { BookingFormSkeleton } from "@/components/booking/booking-form-skeleton";
 import { BookingFormWrapper } from "@/components/booking/booking-form-wrapper";
 import { PropertyBookingsSection } from "@/components/booking/property-bookings-section";
+import { PropertyBookingsSectionSkeleton } from "@/components/booking/property-bookings-section-skeleton";
 import { FavoriteButtonSkeleton } from "@/components/property/favorite-button-skeleton";
 import { FavoriteButtonWrapper } from "@/components/property/favorite-button-wrapper";
 import { PropertyCarousel } from "@/components/property/property-carousel";
@@ -72,7 +73,7 @@ export default async function PropertyPage({
         </Suspense>
       </div>
 
-      <Suspense>
+      <Suspense fallback={<PropertyBookingsSectionSkeleton />}>
         <PropertyBookingsSection propertyId={property.id} />
       </Suspense>
     </>
