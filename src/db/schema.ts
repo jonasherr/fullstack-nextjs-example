@@ -1,7 +1,6 @@
 import {
   boolean,
   date,
-  index,
   integer,
   numeric,
   pgEnum,
@@ -88,68 +87,52 @@ export const verification = pgTable("verification", {
 });
 
 // Properties table
-export const properties = pgTable(
-  "properties",
-  {
-    id: serial("id").primaryKey(),
-    hostId: text("host_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    name: varchar("name", { length: 255 }).notNull(),
-    description: text("description").notNull(),
-    street: varchar("street", { length: 255 }).notNull(),
-    city: varchar("city", { length: 100 }).notNull(),
-    state: varchar("state", { length: 100 }).notNull(),
-    country: varchar("country", { length: 100 }).notNull().default("USA"),
-    zipCode: varchar("zip_code", { length: 20 }).notNull(),
-    pricePerNight: numeric("price_per_night", {
-      precision: 10,
-      scale: 2,
-    }).notNull(),
-    maxGuests: integer("max_guests").notNull(),
-    numBedrooms: integer("num_bedrooms").notNull(),
-    images: text("images").array().notNull(),
-    status: propertyStatusEnum("status").notNull().default("active"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at")
-      .notNull()
-      .defaultNow()
-      .$onUpdate(() => new Date()),
-  },
-  (table) => [
-    index("city_idx").on(table.city),
-    index("price_idx").on(table.pricePerNight),
-    index("max_guests_idx").on(table.maxGuests),
-  ],
-);
+export const properties = pgTable("properties", {
+  id: serial("id").primaryKey(),
+  hostId: text("host_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description").notNull(),
+  street: varchar("street", { length: 255 }).notNull(),
+  city: varchar("city", { length: 100 }).notNull(),
+  state: varchar("state", { length: 100 }).notNull(),
+  country: varchar("country", { length: 100 }).notNull().default("USA"),
+  zipCode: varchar("zip_code", { length: 20 }).notNull(),
+  pricePerNight: numeric("price_per_night", {
+    precision: 10,
+    scale: 2,
+  }).notNull(),
+  maxGuests: integer("max_guests").notNull(),
+  numBedrooms: integer("num_bedrooms").notNull(),
+  images: text("images").array().notNull(),
+  status: propertyStatusEnum("status").notNull().default("active"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
 
 // Bookings table
-export const bookings = pgTable(
-  "bookings",
-  {
-    id: serial("id").primaryKey(),
-    propertyId: integer("property_id")
-      .notNull()
-      .references(() => properties.id, { onDelete: "cascade" }),
-    guestId: text("guest_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    checkInDate: date("check_in_date").notNull(),
-    checkOutDate: date("check_out_date").notNull(),
-    status: bookingStatusEnum("status").notNull().default("pending"),
-    totalPrice: numeric("total_price", { precision: 10, scale: 2 }).notNull(),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at")
-      .notNull()
-      .defaultNow()
-      .$onUpdate(() => new Date()),
-  },
-  (table) => [
-    index("check_in_idx").on(table.checkInDate),
-    index("check_out_idx").on(table.checkOutDate),
-    index("property_id_idx").on(table.propertyId),
-  ],
-);
+export const bookings = pgTable("bookings", {
+  id: serial("id").primaryKey(),
+  propertyId: integer("property_id")
+    .notNull()
+    .references(() => properties.id, { onDelete: "cascade" }),
+  guestId: text("guest_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  checkInDate: date("check_in_date").notNull(),
+  checkOutDate: date("check_out_date").notNull(),
+  status: bookingStatusEnum("status").notNull().default("pending"),
+  totalPrice: numeric("total_price", { precision: 10, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at")
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
 
 // Favorites table (many-to-many relationship)
 export const favorites = pgTable(
