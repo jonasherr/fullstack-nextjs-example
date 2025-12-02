@@ -75,7 +75,17 @@ export async function searchProperties(filters: {
   minGuests?: number;
   checkInDate?: string;
   checkOutDate?: string;
-}): Promise<Property[]> {
+  page?: number;
+  pageSize?: number;
+}): Promise<{
+  properties: Property[];
+  totalCount: number;
+  totalPages: number;
+}> {
+  const page = filters.page || 1;
+  const pageSize = filters.pageSize || 9;
+  const offset = (page - 1) * pageSize;
+
   const conditions = [eq(properties.status, "active")];
 
   // Location filter (searches both city and state, case-insensitive partial match)
@@ -124,13 +134,29 @@ export async function searchProperties(filters: {
     }
   }
 
+  // Get total count
+  const [countResult] = await db
+    .select({ count: count() })
+    .from(properties)
+    .where(and(...conditions));
+
+  const totalCount = countResult?.count ?? 0;
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Get paginated results
   const result = await db
     .select()
     .from(properties)
     .where(and(...conditions))
-    .orderBy(properties.createdAt);
+    .orderBy(properties.createdAt)
+    .limit(pageSize)
+    .offset(offset);
 
-  return result.map(transformProperty);
+  return {
+    properties: result.map(transformProperty),
+    totalCount,
+    totalPages,
+  };
 }
 
 // Get properties by host ID

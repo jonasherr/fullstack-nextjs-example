@@ -10,6 +10,7 @@ export interface HomePageProps {
     minPrice?: string;
     maxPrice?: string;
     guests?: string;
+    page?: string;
   }>;
 }
 
