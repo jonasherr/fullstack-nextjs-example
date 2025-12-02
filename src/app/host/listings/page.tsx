@@ -4,11 +4,11 @@ import { HostListingsSkeleton } from "@/components/property/host-listings-skelet
 import { HostListingsPageWrapper } from "./components/host-listings-page-wrapper";
 
 export default async function HostListingsPage() {
-	return (
-		<HostListingsPageWrapper>
-			<Suspense fallback={<HostListingsSkeleton />}>
-				<HostListingsList />
-			</Suspense>
-		</HostListingsPageWrapper>
-	);
+  return (
+    <HostListingsPageWrapper>
+      <Suspense fallback={<HostListingsSkeleton />}>
+        <HostListingsList />
+      </Suspense>
+    </HostListingsPageWrapper>
+  );
 }

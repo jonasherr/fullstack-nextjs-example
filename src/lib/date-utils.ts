@@ -11,23 +11,23 @@ import type { Booking } from "@/lib/types";
  * @returns Array of Date objects to disable in the calendar
  */
 export function getDisabledDatesFromBookings(bookings: Booking[]): Date[] {
-	const disabledDates: Date[] = [];
+  const disabledDates: Date[] = [];
 
-	for (const booking of bookings) {
-		const checkIn = new Date(booking.checkInDate);
-		const checkOut = new Date(booking.checkOutDate);
+  for (const booking of bookings) {
+    const checkIn = new Date(booking.checkInDate);
+    const checkOut = new Date(booking.checkOutDate);
 
-		// Disable dates from check-in up to (but not including) check-out
-		// This allows same-day turnover: new guests can check in on checkout day
-		let currentDate = new Date(checkIn);
-		while (currentDate < checkOut) {
-			// Create new Date object to avoid mutation
-			disabledDates.push(new Date(currentDate));
-			currentDate.setDate(currentDate.getDate() + 1);
-		}
-	}
+    // Disable dates from check-in up to (but not including) check-out
+    // This allows same-day turnover: new guests can check in on checkout day
+    let currentDate = new Date(checkIn);
+    while (currentDate < checkOut) {
+      // Create new Date object to avoid mutation
+      disabledDates.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  }
 
-	return disabledDates;
+  return disabledDates;
 }
 
 /**
@@ -44,31 +44,31 @@ export function getDisabledDatesFromBookings(bookings: Booking[]): Date[] {
  * @returns true if overlap detected, false if dates are available
  */
 export function checkBookingOverlap(
-	checkInDate: string,
-	checkOutDate: string,
-	existingBookings: Booking[],
+  checkInDate: string,
+  checkOutDate: string,
+  existingBookings: Booking[],
 ): boolean {
-	for (const booking of existingBookings) {
-		// Compare date strings directly to avoid timezone issues
-		// Booking overlaps if:
-		// - New check-in is BEFORE existing check-out (not on same day)
-		// - AND new check-out is AFTER existing check-in
-		//
-		// For same-day turnover: requestedCheckIn < existingCheckOut
-		// - If requestedCheckIn == existingCheckOut (same day), < returns FALSE → no overlap ✓
-		//
-		// Examples:
-		// Existing: 2024-12-01 to 2024-12-05
-		// New: 2024-12-05 to 2024-12-10 → "2024-12-05" < "2024-12-05" = FALSE → OK
-		// New: 2024-12-03 to 2024-12-07 → "2024-12-03" < "2024-12-05" = TRUE → OVERLAP
+  for (const booking of existingBookings) {
+    // Compare date strings directly to avoid timezone issues
+    // Booking overlaps if:
+    // - New check-in is BEFORE existing check-out (not on same day)
+    // - AND new check-out is AFTER existing check-in
+    //
+    // For same-day turnover: requestedCheckIn < existingCheckOut
+    // - If requestedCheckIn == existingCheckOut (same day), < returns FALSE → no overlap ✓
+    //
+    // Examples:
+    // Existing: 2024-12-01 to 2024-12-05
+    // New: 2024-12-05 to 2024-12-10 → "2024-12-05" < "2024-12-05" = FALSE → OK
+    // New: 2024-12-03 to 2024-12-07 → "2024-12-03" < "2024-12-05" = TRUE → OVERLAP
 
-		const overlaps =
-			checkInDate < booking.checkOutDate && checkOutDate > booking.checkInDate;
+    const overlaps =
+      checkInDate < booking.checkOutDate && checkOutDate > booking.checkInDate;
 
-		if (overlaps) {
-			return true;
-		}
-	}
+    if (overlaps) {
+      return true;
+    }
+  }
 
-	return false;
+  return false;
 }

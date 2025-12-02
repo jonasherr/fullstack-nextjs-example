@@ -1,7 +1,4 @@
-import { eq } from "drizzle-orm";
-import { db } from "@/db";
 import { getBookingsWithGuests, getPropertyById } from "@/db/queries";
-import { bookings, user } from "@/db/schema";
 import { getSession } from "@/lib/auth-server";
 import { PropertyBookingsList } from "./property-bookings-list";
 

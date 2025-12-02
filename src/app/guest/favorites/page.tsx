@@ -4,11 +4,11 @@ import { FavoritesSkeleton } from "@/components/property/favorites-skeleton";
 import { FavoritesPageWrapper } from "./components/favorites-page-wrapper";
 
 export default async function FavoritesPage() {
-	return (
-		<FavoritesPageWrapper>
-			<Suspense fallback={<FavoritesSkeleton />}>
-				<FavoritesList />
-			</Suspense>
-		</FavoritesPageWrapper>
-	);
+  return (
+    <FavoritesPageWrapper>
+      <Suspense fallback={<FavoritesSkeleton />}>
+        <FavoritesList />
+      </Suspense>
+    </FavoritesPageWrapper>
+  );
 }
