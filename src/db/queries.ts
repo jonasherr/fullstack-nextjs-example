@@ -186,12 +186,12 @@ export async function getBookingsByHostId(hostId: string): Promise<Booking[]> {
 
 // Get a specific booking by ID
 export async function getBookingById(
-  bookingId: string,
+  bookingId: number,
 ): Promise<Booking | null> {
   const result = await db
     .select()
     .from(bookings)
-    .where(eq(bookings.id, Number.parseInt(bookingId)))
+    .where(eq(bookings.id, bookingId))
     .limit(1);
 
   return result[0];

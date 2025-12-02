@@ -157,7 +157,7 @@ export async function updateBookingStatus(
     await db
       .update(bookings)
       .set({ status: validatedData.status })
-      .where(eq(bookings.id, Number.parseInt(validatedData.bookingId)));
+      .where(eq(bookings.id, validatedData.bookingId));
 
     // Revalidate relevant pages
     revalidatePath("/host/bookings");
