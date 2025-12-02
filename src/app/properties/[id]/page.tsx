@@ -4,7 +4,6 @@ import { Suspense } from "react";
 import { BookingFormSkeleton } from "@/components/booking/booking-form-skeleton";
 import { BookingFormWrapper } from "@/components/booking/booking-form-wrapper";
 import { PropertyBookingsSection } from "@/components/booking/property-bookings-section";
-import { Header } from "@/components/navigation/header";
 import { FavoriteButtonSkeleton } from "@/components/property/favorite-button-skeleton";
 import { FavoriteButtonWrapper } from "@/components/property/favorite-button-wrapper";
 import { PropertyCarousel } from "@/components/property/property-carousel";
@@ -27,7 +26,8 @@ export default async function PropertyPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params;
+  const { id: idAsString } = await params;
+  const id = Number(idAsString);
 
   const property = await getPropertyById(id);
 
@@ -47,11 +47,11 @@ export default async function PropertyPage({
               <h1 className="text-3xl font-bold">{property.name}</h1>
               <p className="text-muted-foreground flex items-center gap-1 mt-2">
                 <MapPin className="h-4 w-4" />
-                {property.address.street}, {property.address.city},{" "}
-                {property.address.state}
+                {property.street}, {property.city}, {property.state}
               </p>
             </div>
 
+            {/* Favorite button - streams in dynamically */}
             <Suspense fallback={<FavoriteButtonSkeleton />}>
               <FavoriteButtonWrapper
                 propertyId={property.id}
@@ -65,8 +65,8 @@ export default async function PropertyPage({
 
         <Suspense fallback={<BookingFormSkeleton />}>
           <BookingFormWrapper
-            propertyId={property.id}
-            pricePerNight={property.pricePerNight}
+            propertyId={idAsString}
+            pricePerNight={Number(property.pricePerNight)}
             maxGuests={property.maxGuests}
           />
         </Suspense>

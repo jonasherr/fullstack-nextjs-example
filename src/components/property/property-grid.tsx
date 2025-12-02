@@ -4,10 +4,14 @@ import { PropertyCard } from "./property-card";
 interface PropertyGridProps {
   properties: Property[];
   userId?: string;
-  favoritedIds?: Set<string>;
+  favoritedIds?: Set<number>;
 }
 
-export function PropertyGrid({ properties, userId, favoritedIds }: PropertyGridProps) {
+export function PropertyGrid({
+  properties,
+  userId,
+  favoritedIds,
+}: PropertyGridProps) {
   if (properties.length === 0) {
     return (
       <div className="text-center py-12">

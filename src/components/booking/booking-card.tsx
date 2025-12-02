@@ -4,17 +4,20 @@ import { format } from "date-fns";
 import { Calendar } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
+import { toast } from "sonner";
+import { acceptBooking, declineBooking } from "@/app/actions/bookings";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Booking, Property } from "@/lib/types";
-import { acceptBooking, declineBooking } from "@/app/actions/bookings";
-import { toast } from "sonner";
 import { CancelBookingDialog } from "./cancel-booking-dialog";
 
 interface BookingCardProps {
-  booking: Booking;
-  property: Property;
+  booking: Pick<
+    Booking,
+    "id" | "checkInDate" | "checkOutDate" | "totalPrice" | "status"
+  >;
+  property: Pick<Property, "id" | "images" | "name">;
   guestName: string;
   showActions?: boolean;
   showCancelAction?: boolean;

@@ -3,7 +3,7 @@ import { isFavorited } from "@/db/queries";
 import { getSession } from "@/lib/auth-server";
 
 interface FavoriteButtonWrapperProps {
-  propertyId: string;
+  propertyId: number;
   hostId: string;
 }
 

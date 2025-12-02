@@ -1,7 +1,10 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 import type { DateRange } from "react-day-picker";
+import { toast } from "sonner";
+import { createBooking } from "@/app/actions/bookings";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,11 +16,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { createBooking } from "@/app/actions/bookings";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import type { Booking } from "@/lib/types";
 import { getDisabledDatesFromBookings } from "@/lib/date-utils";
+import type { Booking } from "@/lib/types";
 
 interface BookingFormProps {
   propertyId: string;
@@ -53,8 +53,7 @@ export function BookingForm({
 
     // Disable booked dates
     return disabledDates.some(
-      (disabledDate) =>
-        disabledDate.toDateString() === date.toDateString()
+      (disabledDate) => disabledDate.toDateString() === date.toDateString(),
     );
   };
 
@@ -84,8 +83,8 @@ export function BookingForm({
       // Format dates in local timezone to avoid timezone shift issues
       const formatLocalDate = (date: Date) => {
         const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
         return `${year}-${month}-${day}`;
       };
 

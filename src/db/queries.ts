@@ -3,68 +3,27 @@ import type { Booking, Property } from "@/lib/types";
 import { db } from "./index";
 import { bookings, favorites, properties, user } from "./schema";
 
-// Transform database property to UI Property type (with address object)
-function transformProperty(
-  dbProperty: typeof properties.$inferSelect,
-): Property {
-  return {
-    id: dbProperty.id.toString(),
-    hostId: dbProperty.hostId,
-    name: dbProperty.name,
-    description: dbProperty.description,
-    address: {
-      street: dbProperty.street,
-      city: dbProperty.city,
-      state: dbProperty.state,
-      country: dbProperty.country,
-      zipCode: dbProperty.zipCode,
-    },
-    pricePerNight: Number(dbProperty.pricePerNight),
-    maxGuests: dbProperty.maxGuests,
-    numBedrooms: dbProperty.numBedrooms,
-    images: dbProperty.images,
-    status: dbProperty.status,
-    createdAt: dbProperty.createdAt.toISOString(),
-  };
-}
-
-// Transform database booking to UI Booking type
-function transformBooking(dbBooking: typeof bookings.$inferSelect): Booking {
-  return {
-    id: dbBooking.id.toString(),
-    propertyId: dbBooking.propertyId.toString(),
-    guestId: dbBooking.guestId,
-    checkInDate: dbBooking.checkInDate,
-    checkOutDate: dbBooking.checkOutDate,
-    status: dbBooking.status,
-    totalPrice: Number(dbBooking.totalPrice),
-    createdAt: dbBooking.createdAt.toISOString(),
-  };
-}
-
 // Get all active properties
 export async function getAllProperties(): Promise<Property[]> {
-  const result = await db
+  return await db
     .select()
     .from(properties)
     .where(eq(properties.status, "active"))
     .orderBy(properties.createdAt);
-
-  return result.map(transformProperty);
 }
 
 // Get property by ID
 export async function getPropertyById(
-  id: string,
+  id: number,
 ): Promise<Property | undefined> {
   "use cache";
   const result = await db
     .select()
     .from(properties)
-    .where(eq(properties.id, Number.parseInt(id)))
+    .where(eq(properties.id, id))
     .limit(1);
 
-  return result[0] ? transformProperty(result[0]) : undefined;
+  return result[0];
 }
 
 // Search and filter properties
@@ -153,7 +112,7 @@ export async function searchProperties(filters: {
     .offset(offset);
 
   return {
-    properties: result.map(transformProperty),
+    properties: result,
     totalCount,
     totalPages,
   };
@@ -163,44 +122,38 @@ export async function searchProperties(filters: {
 export async function getPropertiesByHostId(
   hostId: string,
 ): Promise<Property[]> {
-  const result = await db
+  return await db
     .select()
     .from(properties)
     .where(eq(properties.hostId, hostId))
     .orderBy(properties.createdAt);
-
-  return result.map(transformProperty);
 }
 
 // Get bookings by property ID
 export async function getBookingsByPropertyId(
   propertyId: string,
 ): Promise<Booking[]> {
-  const result = await db
+  return await db
     .select()
     .from(bookings)
     .where(eq(bookings.propertyId, Number.parseInt(propertyId)))
     .orderBy(bookings.createdAt);
-
-  return result.map(transformBooking);
 }
 
 // Get bookings by guest ID
 export async function getBookingsByGuestId(
   guestId: string,
 ): Promise<Booking[]> {
-  const result = await db
+  return await db
     .select()
     .from(bookings)
     .where(eq(bookings.guestId, guestId))
     .orderBy(bookings.createdAt);
-
-  return result.map(transformBooking);
 }
 
 // Get bookings with property details by guest ID (optimized - single query with join)
 export async function getBookingsWithPropertiesByGuestId(guestId: string) {
-  const result = await db
+  return await db
     .select({
       booking: bookings,
       property: properties,
@@ -209,16 +162,11 @@ export async function getBookingsWithPropertiesByGuestId(guestId: string) {
     .innerJoin(properties, eq(bookings.propertyId, properties.id))
     .where(eq(bookings.guestId, guestId))
     .orderBy(bookings.createdAt);
-
-  return result.map((row) => ({
-    booking: transformBooking(row.booking),
-    property: transformProperty(row.property),
-  }));
 }
 
 // Get bookings for properties owned by a host
 export async function getBookingsByHostId(hostId: string): Promise<Booking[]> {
-  const result = await db
+  return await db
     .select({
       id: bookings.id,
       propertyId: bookings.propertyId,
@@ -234,8 +182,6 @@ export async function getBookingsByHostId(hostId: string): Promise<Booking[]> {
     .innerJoin(properties, eq(bookings.propertyId, properties.id))
     .where(eq(properties.hostId, hostId))
     .orderBy(bookings.createdAt);
-
-  return result.map(transformBooking);
 }
 
 // Get a specific booking by ID
@@ -248,18 +194,14 @@ export async function getBookingById(
     .where(eq(bookings.id, Number.parseInt(bookingId)))
     .limit(1);
 
-  if (result.length === 0) {
-    return null;
-  }
-
-  return transformBooking(result[0]);
+  return result[0];
 }
 
 // Get accepted bookings for a property (for checking availability)
 export async function getAcceptedBookingsForProperty(
   propertyId: string,
 ): Promise<Booking[]> {
-  const result = await db
+  return await db
     .select()
     .from(bookings)
     .where(
@@ -269,8 +211,6 @@ export async function getAcceptedBookingsForProperty(
       ),
     )
     .orderBy(bookings.checkInDate);
-
-  return result.map(transformBooking);
 }
 
 // Get user by ID
@@ -300,16 +240,13 @@ export async function getUserByEmail(email: string) {
 // Check if a property is favorited by a user
 export async function isFavorited(
   userId: string,
-  propertyId: string,
+  propertyId: number,
 ): Promise<boolean> {
   const result = await db
     .select()
     .from(favorites)
     .where(
-      and(
-        eq(favorites.userId, userId),
-        eq(favorites.propertyId, parseInt(propertyId)),
-      ),
+      and(eq(favorites.userId, userId), eq(favorites.propertyId, propertyId)),
     )
     .limit(1);
 
@@ -329,7 +266,7 @@ export async function getFavoritesByUserId(userId: string) {
     .orderBy(desc(favorites.createdAt));
 
   return result.map((row) => ({
-    property: transformProperty(row.property),
+    property: row.property,
     favoritedAt: row.favoritedAt.toISOString(),
   }));
 }
@@ -343,3 +280,28 @@ export async function getFavoriteCount(propertyId: number): Promise<number> {
 
   return result[0]?.count ?? 0;
 }
+
+export async function getBookingsWithGuests(propertyId: number) {
+  return await db
+    .select({
+      id: bookings.id,
+      property: {
+        id: properties.id,
+        images: properties.images,
+        name: properties.name,
+      },
+      guestId: bookings.guestId,
+      checkInDate: bookings.checkInDate,
+      checkOutDate: bookings.checkOutDate,
+      status: bookings.status,
+      totalPrice: bookings.totalPrice,
+      guestName: user.name,
+    })
+    .from(bookings)
+    .innerJoin(user, eq(bookings.guestId, user.id))
+    .where(eq(bookings.propertyId, propertyId));
+}
+
+export type BookingsWithGuests = Awaited<
+  ReturnType<typeof getBookingsWithGuests>
+>;

@@ -11,7 +11,11 @@ interface PropertyCardProps {
   isFavorited?: boolean;
 }
 
-export function PropertyCard({ property, userId, isFavorited = false }: PropertyCardProps) {
+export function PropertyCard({
+  property,
+  userId,
+  isFavorited = false,
+}: PropertyCardProps) {
   return (
     <Link href={`/properties/${property.id}`}>
       <Card className="group cursor-pointer overflow-hidden border-none shadow-sm transition-shadow hover:shadow-md">
@@ -41,7 +45,7 @@ export function PropertyCard({ property, userId, isFavorited = false }: Property
               <h3 className="truncate font-semibold">{property.name}</h3>
               <p className="text-sm text-muted-foreground flex items-center gap-1">
                 <MapPin className="h-3 w-3" />
-                {property.address.city}, {property.address.state}
+                {property.city}, {property.state}
               </p>
             </div>
             <div className="flex items-center gap-1">
