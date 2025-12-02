@@ -299,6 +299,7 @@ export async function getBookingsWithGuests(propertyId: number) {
     })
     .from(bookings)
     .innerJoin(user, eq(bookings.guestId, user.id))
+    .innerJoin(properties, eq(bookings.propertyId, properties.id))
     .where(eq(bookings.propertyId, propertyId));
 }
 
