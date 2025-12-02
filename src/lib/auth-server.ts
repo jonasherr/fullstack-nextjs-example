@@ -4,6 +4,7 @@ import type { Session } from "./auth";
 import { auth } from "./auth";
 
 export async function getSession(): Promise<Session | null> {
+  "use cache: private";
   const session = await auth.api.getSession({
     headers: await headers(),
   });
