@@ -23,7 +23,7 @@ export function PropertyCarousel({
           alt={`${propertyName} - Image ${selectedIndex + 1}`}
           fill
           className="object-cover"
-          priority
+          preload
           sizes="(max-width: 1200px) 100vw, 1200px"
         />
       </div>

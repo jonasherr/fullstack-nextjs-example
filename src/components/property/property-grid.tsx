@@ -24,12 +24,13 @@ export function PropertyGrid({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-      {properties.map((property) => (
+      {properties.map((property, index) => (
         <PropertyCard
           key={property.id}
           property={property}
           userId={userId}
           isFavorited={favoritedIds?.has(property.id) ?? false}
+          shouldPrioritizeImage={index < 4}
         />
       ))}
     </div>

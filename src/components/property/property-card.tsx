@@ -1,20 +1,22 @@
 import { Bed, MapPin, Star, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { FavoriteButton } from "@/components/property/favorite-button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Property } from "@/lib/types";
-import { FavoriteButton } from "@/components/property/favorite-button";
 
 interface PropertyCardProps {
   property: Property;
-  userId?: string;
   isFavorited?: boolean;
+  shouldPrioritizeImage?: boolean;
+  userId?: string;
 }
 
 export function PropertyCard({
   property,
-  userId,
   isFavorited = false,
+  shouldPrioritizeImage = false,
+  userId,
 }: PropertyCardProps) {
   return (
     <Link href={`/properties/${property.id}`}>
@@ -23,6 +25,7 @@ export function PropertyCard({
           <Image
             src={property.images[0]}
             alt={property.name}
+            preload={shouldPrioritizeImage}
             fill
             className="object-cover transition-transform group-hover:scale-105"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
