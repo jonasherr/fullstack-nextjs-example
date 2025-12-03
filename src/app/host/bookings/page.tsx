@@ -1,26 +1,11 @@
 import { BookingCard } from "@/components/booking/booking-card";
-import {
-  getBookingsByHostId,
-  getPropertyById,
-  getUserById,
-} from "@/db/queries";
+import { getBookingsWithDetailsForHost } from "@/db/queries";
 import { requireAuth } from "@/lib/auth-server";
 
 export default async function HostBookingsPage() {
   const session = await requireAuth();
 
-  const hostBookings = await getBookingsByHostId(session.user.id);
-
-  const bookingsWithDetails = await Promise.all(
-    hostBookings.map(async (booking) => {
-      const property = await getPropertyById(booking.propertyId);
-      const guest = await getUserById(booking.guestId);
-      if (!property || !guest) return null;
-      return { booking, property, guest };
-    }),
-  ).then((results) =>
-    results.filter((item): item is NonNullable<typeof item> => item !== null),
-  );
+  const bookingsWithDetails = await getBookingsWithDetailsForHost(session.user.id);
 
   const pendingBookings = bookingsWithDetails.filter(
     (b) => b.booking.status === "pending",

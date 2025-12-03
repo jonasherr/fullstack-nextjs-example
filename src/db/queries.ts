@@ -164,22 +164,31 @@ export async function getBookingsWithPropertiesByGuestId(guestId: string) {
     .orderBy(bookings.createdAt);
 }
 
-// Get bookings for properties owned by a host
-export async function getBookingsByHostId(hostId: string): Promise<Booking[]> {
+// Get bookings with property and guest details for properties owned by a host (optimized - single query)
+export async function getBookingsWithDetailsForHost(hostId: string) {
   return await db
     .select({
-      id: bookings.id,
-      propertyId: bookings.propertyId,
-      guestId: bookings.guestId,
-      checkInDate: bookings.checkInDate,
-      checkOutDate: bookings.checkOutDate,
-      status: bookings.status,
-      totalPrice: bookings.totalPrice,
-      createdAt: bookings.createdAt,
-      updatedAt: bookings.updatedAt,
+      booking: {
+        id: bookings.id,
+        propertyId: bookings.propertyId,
+        guestId: bookings.guestId,
+        checkInDate: bookings.checkInDate,
+        checkOutDate: bookings.checkOutDate,
+        status: bookings.status,
+        totalPrice: bookings.totalPrice,
+        createdAt: bookings.createdAt,
+        updatedAt: bookings.updatedAt,
+      },
+      property: properties,
+      guest: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
     })
     .from(bookings)
     .innerJoin(properties, eq(bookings.propertyId, properties.id))
+    .innerJoin(user, eq(bookings.guestId, user.id))
     .where(eq(properties.hostId, hostId))
     .orderBy(bookings.createdAt);
 }
