@@ -1,4 +1,4 @@
-import { FavoriteButton } from "@/components/property/favorite-button";
+import { FavoriteButton } from "./favorite-button";
 import { isFavorited } from "@/db/queries";
 import { getSession } from "@/lib/auth-server";
 

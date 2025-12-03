@@ -1,4 +1,4 @@
-import { PropertyGrid } from "@/components/property/property-grid";
+import { PropertyGrid } from "@/app/properties/[id]/components/property-grid";
 import { getPropertiesByHostId } from "@/db/queries";
 import { requireAuth } from "@/lib/auth-server";
 

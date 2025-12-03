@@ -1,7 +1,7 @@
 import { Bed, MapPin, Star, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { FavoriteButton } from "@/components/property/favorite-button";
+import { FavoriteButton } from "./favorite-button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Property } from "@/lib/types";
 

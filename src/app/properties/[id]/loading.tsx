@@ -1,5 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton";
-import { BookingFormSkeleton } from "@/components/booking/booking-form-skeleton";
+import { BookingFormSkeleton } from "./components/booking-form-skeleton";
 
 export default function Loading() {
   return (

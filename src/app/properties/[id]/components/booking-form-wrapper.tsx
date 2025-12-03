@@ -1,5 +1,5 @@
-import { BookingForm } from "@/components/booking/booking-form";
-import { LoginToBookCard } from "@/components/booking/login-to-book-card";
+import { BookingForm } from "./booking-form";
+import { LoginToBookCard } from "./login-to-book-card";
 import { getAcceptedBookingsForProperty } from "@/db/queries";
 import { getSession } from "@/lib/auth-server";
 

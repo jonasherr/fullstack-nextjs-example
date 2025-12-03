@@ -1,6 +1,6 @@
+import { BookingCard } from "@/app/guest/bookings/components/booking-card";
 import { Badge } from "@/components/ui/badge";
 import { BookingsWithGuests } from "@/db/queries";
-import { BookingCard } from "./booking-card";
 
 interface PropertyBookingsListProps {
   bookings: BookingsWithGuests;

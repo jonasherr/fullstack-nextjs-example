@@ -1,6 +1,6 @@
 import { HomePageProps } from "@/app/(marketing)/page";
-import { PropertyGrid } from "@/components/property/property-grid";
-import { PropertyPagination } from "@/components/property/property-pagination";
+import { PropertyGrid } from "@/app/properties/[id]/components/property-grid";
+import { PropertyPagination } from "./property-pagination";
 import { getFavoritesByUserId, searchProperties } from "@/db/queries";
 import { getSession } from "@/lib/auth-server";
 

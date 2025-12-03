@@ -1,6 +1,6 @@
 import { Heart } from "lucide-react";
 import Link from "next/link";
-import { PropertyCard } from "@/components/property/property-card";
+import { PropertyCard } from "@/app/properties/[id]/components/property-card";
 import { Button } from "@/components/ui/button";
 import { getFavoritesByUserId } from "@/db/queries";
 import { requireAuth } from "@/lib/auth-server";

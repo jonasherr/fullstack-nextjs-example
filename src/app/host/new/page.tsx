@@ -1,4 +1,4 @@
-import { PropertyForm } from "@/components/forms/property-form";
+import { PropertyForm } from "./components/property-form";
 import { requireAuth } from "@/lib/auth-server";
 
 export default async function NewPropertyPage() {

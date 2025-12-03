@@ -1,4 +1,4 @@
-import { PropertyResultsSkeleton } from "@/components/property/property-results-skeleton";
+import { PropertyResultsSkeleton } from "./(marketing)/components/property-results-skeleton";
 
 export default function Loading() {
   return (

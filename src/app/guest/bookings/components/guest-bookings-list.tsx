@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BookingCard } from "@/components/booking/booking-card";
+import { BookingCard } from "./booking-card";
 import { Button } from "@/components/ui/button";
 import { getBookingsWithPropertiesByGuestId } from "@/db/queries";
 import { requireAuth } from "@/lib/auth-server";

@@ -94,7 +94,23 @@ Performance is a top priority, driving the following rendering decisions:
 - Don't unnecessarily add 'try' /'catch'
 - Don't cast to 'any'
 
-## 6. Feature-Specific Patterns
+## 6. Component Architecture
+
+**Feature-Based Colocation:**
+- Prevent: Creating components in `src/components/{category}/`
+- Instead: Colocate components with the page that uses them in `src/app/{feature}/components/`
+
+**Exceptions:**
+- UI primitives: Keep in `src/components/ui/` (shadcn/ui only)
+- Root layout: Keep in `src/app/components/` (Header, Nav, etc.)
+
+**Shared Components (used by 2+ features):**
+- Prevent: Duplicating components across features
+- Instead: Import from PRIMARY location:
+  - PropertyCard, PropertyGrid, FavoriteButton → `app/properties/[id]/components/`
+  - BookingCard → `app/guest/bookings/components/`
+
+## 7. Feature-Specific Patterns
 
 ### Favorites Feature
 

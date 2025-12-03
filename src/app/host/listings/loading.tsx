@@ -1,4 +1,4 @@
-import { HostListingsSkeleton } from "@/components/property/host-listings-skeleton";
+import { HostListingsSkeleton } from "./components/host-listings-skeleton";
 
 export default function Loading() {
   return <HostListingsSkeleton />;

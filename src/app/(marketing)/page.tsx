@@ -1,8 +1,8 @@
 import { Suspense } from "react";
-import { Hero } from "@/components/home/hero";
-import { PropertyFilters } from "@/components/property/property-filters";
-import { PropertyResults } from "@/components/property/property-results";
-import { PropertyResultsSkeleton } from "@/components/property/property-results-skeleton";
+import { Hero } from "./components/hero";
+import { PropertyFilters } from "./components/property-filters";
+import { PropertyResults } from "./components/property-results";
+import { PropertyResultsSkeleton } from "./components/property-results-skeleton";
 
 export interface HomePageProps {
   searchParams: Promise<{

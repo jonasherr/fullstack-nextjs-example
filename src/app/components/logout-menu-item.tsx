@@ -2,10 +2,10 @@
 
 import { LogOut } from "lucide-react";
 import { refresh } from "next/cache";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { signOut } from "@/lib/auth-client";
-import { DropdownMenuItem } from "../ui/dropdown-menu";
 
 export default function LogoutMenuItem() {
   const router = useRouter();

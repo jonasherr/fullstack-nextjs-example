@@ -1,4 +1,4 @@
-import { GuestBookingsSkeleton } from "@/components/booking/guest-bookings-skeleton";
+import { GuestBookingsSkeleton } from "./components/guest-bookings-skeleton";
 
 export default function Loading() {
   return <GuestBookingsSkeleton />;

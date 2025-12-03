@@ -1,11 +1,13 @@
-import { BookingCard } from "@/components/booking/booking-card";
+import { BookingCard } from "@/app/guest/bookings/components/booking-card";
 import { getBookingsWithDetailsForHost } from "@/db/queries";
 import { requireAuth } from "@/lib/auth-server";
 
 export default async function HostBookingsPage() {
   const session = await requireAuth();
 
-  const bookingsWithDetails = await getBookingsWithDetailsForHost(session.user.id);
+  const bookingsWithDetails = await getBookingsWithDetailsForHost(
+    session.user.id,
+  );
 
   const pendingBookings = bookingsWithDetails.filter(
     (b) => b.booking.status === "pending",
