@@ -40,7 +40,6 @@ export function ConformField({
 
 export function ConformInput({
   field,
-  type,
   value,
   ...props
 }: {
