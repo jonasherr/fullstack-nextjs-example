@@ -77,6 +77,15 @@ Performance is a top priority, driving the following rendering decisions:
 - The 'gh' CLI is installed, use it
 - Don't use emojis
 
+### Forms
+- **Library:** Conform (`@conform-to/react` + `@conform-to/zod/v4`)
+- **Pattern:** Use `useForm()` hook with `getFormProps(form)` spread on form element
+- **Components:** Use `ConformField` and `ConformInput` from `@/components/ui/conform-form`
+- **Validation:** Zod schemas with `parseWithZod()` for validation
+- **Server Actions:** Use `useActionState()` hook to manage server action state, pass `lastResult` to `useForm()`
+- **Client-Only:** Use `onSubmit` in `useForm()` config for client-side forms (e.g., filters, search)
+- **Example:** See `src/app/host/new/components/property-form.tsx` for best practices
+
 ## React
 - Avoid massive JSX blocks and compose smaller components
 - Colocate code that changes together
