@@ -1,26 +1,28 @@
-import {
-  createInsertSchema,
-  createSelectSchema,
-  createUpdateSchema,
-} from "drizzle-zod";
-import { z } from "zod";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
+import { z } from "zod/v4";
 import { bookings, properties } from "@/db/schema";
 
 // Property schemas
+export const maximumImagesPerProperty = 3;
 export const insertPropertySchema = createInsertSchema(properties, {
-  name: z.string().min(1, "Name is required"),
+  name: z.string("Name is required").min(1),
   description: z.string().min(10, "Description must be at least 10 characters"),
-  street: z.string().min(1, "Street address is required"),
-  city: z.string().min(1, "City is required"),
-  state: z.string().min(1, "State is required"),
-  zipCode: z.string().min(1, "ZIP code is required"),
-  pricePerNight: z.string().regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
-  maxGuests: z.number().min(1, "Must accommodate at least 1 guest"),
-  numBedrooms: z.number().min(1, "Must have at least 1 bedroom"),
+  street: z.string("Street address is required").min(1),
+  city: z.string("City is required").min(1),
+  state: z.string("State is required").min(1),
+  zipCode: z.string("ZIP code is required").min(1),
+  pricePerNight: z
+    .string("Price is required")
+    .regex(/^\d+(\.\d{1,2})?$/, "Invalid price format"),
+  maxGuests: z.number("Must accommodate at least 1 guest").min(1),
+  numBedrooms: z.number("Must have at least 1 bedroom").min(1),
   images: z
-    .array(z.string().url("Invalid image URL"))
+    .array(z.url("Invalid image URL"))
     .min(1, "At least one image is required")
-    .max(10, "Maximum 10 images allowed"),
+    .max(
+      maximumImagesPerProperty,
+      `Maximum ${maximumImagesPerProperty} images allowed`,
+    ),
 }).omit({
   id: true,
   createdAt: true,
