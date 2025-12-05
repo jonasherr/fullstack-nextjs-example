@@ -3,8 +3,6 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { BookingFormSkeleton } from "./components/booking-form-skeleton";
 import { BookingFormWrapper } from "./components/booking-form-wrapper";
-import { PropertyBookingsSection } from "./components/property-bookings-section";
-import { PropertyBookingsSectionSkeleton } from "./components/property-bookings-section-skeleton";
 import { FavoriteButtonSkeleton } from "./components/favorite-button-skeleton";
 import { FavoriteButtonWrapper } from "./components/favorite-button-wrapper";
 import { PropertyCarousel } from "./components/property-carousel";
@@ -72,10 +70,6 @@ export default async function PropertyPage({
           />
         </Suspense>
       </div>
-
-      <Suspense fallback={<PropertyBookingsSectionSkeleton />}>
-        <PropertyBookingsSection propertyId={property.id} />
-      </Suspense>
     </>
   );
 }

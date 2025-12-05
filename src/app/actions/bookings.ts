@@ -163,6 +163,7 @@ export async function updateBookingStatus(
     revalidatePath("/host/bookings");
     revalidatePath("/guest/bookings");
     revalidatePath(`/properties/${booking.propertyId}`);
+    revalidatePath(`/host/listings/${booking.propertyId}`);
 
     return {
       success: true,
