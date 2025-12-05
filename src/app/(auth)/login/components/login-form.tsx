@@ -1,10 +1,10 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
+import { getFormProps, useForm } from "@conform-to/react";
+import { getZodConstraint, parseWithZod } from "@conform-to/zod/v4";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
@@ -16,42 +16,41 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+import { ConformField, ConformInput } from "@/components/ui/conform-form";
 import { signIn } from "@/lib/auth-client";
 
 const loginFormSchema = z.object({
   email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Please enter a valid email address"),
+    .email("Please enter a valid email address")
+    .min(1, "Email is required"),
   password: z
-    .string()
-    .min(1, "Password is required")
+    .string("Password is required")
+    .min(1)
     .min(8, "Password must be at least 8 characters"),
 });
-
-type LoginFormData = z.infer<typeof loginFormSchema>;
 
 export function LoginForm() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const form = useForm<LoginFormData>({
-    resolver: zodResolver(loginFormSchema),
-    defaultValues: {
-      email: "",
-      password: "",
+
+  const [form, fields] = useForm({
+    constraint: getZodConstraint(loginFormSchema),
+    shouldValidate: "onBlur",
+    shouldRevalidate: "onInput",
+    onValidate({ formData }) {
+      return parseWithZod(formData, { schema: loginFormSchema });
+    },
+    async onSubmit(event, { formData }) {
+      event.preventDefault();
+      const submission = parseWithZod(formData, { schema: loginFormSchema });
+
+      if (submission.status === "success") {
+        await handleLogin(submission.value);
+      }
     },
   });
 
-  async function onSubmit(data: LoginFormData) {
+  async function handleLogin(data: { email: string; password: string }) {
     setIsSubmitting(true);
     try {
       const result = await signIn.email({
@@ -89,56 +88,34 @@ export function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="email"
-                      placeholder="you@example.com"
-                      autoComplete="email"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+        <form className="space-y-4" {...getFormProps(form)}>
+          <ConformField field={fields.email} label="Email">
+            <ConformInput
+              field={fields.email}
+              type="email"
+              placeholder="you@example.com"
+              autoComplete="email"
             />
+          </ConformField>
 
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="password"
-                      placeholder="Enter your password"
-                      autoComplete="current-password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+          <ConformField field={fields.password} label="Password">
+            <ConformInput
+              field={fields.password}
+              type="password"
+              placeholder="Enter your password"
+              autoComplete="current-password"
             />
+          </ConformField>
 
-            <Button
-              type="submit"
-              className="w-full"
-              size="lg"
-              disabled={isSubmitting}
-            >
-              {isSubmitting ? "Logging in..." : "Log in"}
-            </Button>
-          </form>
-        </Form>
+          <Button
+            type="submit"
+            className="w-full"
+            size="lg"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? "Logging in..." : "Log in"}
+          </Button>
+        </form>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-center text-sm">
         <p className="text-muted-foreground">

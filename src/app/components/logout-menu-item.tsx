@@ -1,7 +1,6 @@
 "use client";
 
 import { LogOut } from "lucide-react";
-import { refresh } from "next/cache";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
@@ -13,8 +12,7 @@ export default function LogoutMenuItem() {
   async function handleSignOut() {
     await signOut();
     toast.success("Logged out successfully");
-    refresh();
-    router.push("/");
+    router.push("/login");
   }
 
   return (
