@@ -1,74 +1,62 @@
 "use client";
 
+import { getFormProps, useForm } from "@conform-to/react";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-
-interface FilterFormData {
-  location: string;
-  minPrice: string;
-  maxPrice: string;
-  guests: string;
-}
+import { ConformField, ConformInput } from "@/components/ui/conform-form";
 
 export function PropertyFilters() {
   const router = useRouter();
-  const { register, handleSubmit } = useForm<FilterFormData>();
 
-  function onSubmit(data: FilterFormData) {
-    const params = new URLSearchParams();
-    if (data.location) params.set("location", data.location);
-    if (data.minPrice) params.set("minPrice", data.minPrice);
-    if (data.maxPrice) params.set("maxPrice", data.maxPrice);
-    if (data.guests) params.set("guests", data.guests);
+  const [form, fields] = useForm({
+    onSubmit(event, { formData }) {
+      event.preventDefault();
 
-    router.push(`/?${params.toString()}`);
-  }
+      const params = new URLSearchParams();
+      const location = formData.get("location");
+      const minPrice = formData.get("minPrice");
+      const maxPrice = formData.get("maxPrice");
+      const guests = formData.get("guests");
+
+      if (location) params.set("location", location.toString());
+      if (minPrice) params.set("minPrice", minPrice.toString());
+      if (maxPrice) params.set("maxPrice", maxPrice.toString());
+      if (guests) params.set("guests", guests.toString());
+
+      router.push(`/?${params.toString()}`);
+    },
+  });
 
   return (
     <form
-      onSubmit={handleSubmit(onSubmit)}
       className="bg-card p-6 rounded-lg shadow-sm border"
+      {...getFormProps(form)}
     >
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div>
-          <Label htmlFor="location">Location</Label>
-          <Input
-            id="location"
-            placeholder="City, State"
-            {...register("location")}
-          />
-        </div>
-        <div>
-          <Label htmlFor="minPrice">Min Price</Label>
-          <Input
-            id="minPrice"
+        <ConformField field={fields.location} label="Location">
+          <ConformInput field={fields.location} placeholder="City, State" />
+        </ConformField>
+
+        <ConformField field={fields.minPrice} label="Min Price">
+          <ConformInput
+            field={fields.minPrice}
             type="number"
             placeholder="$0"
-            {...register("minPrice")}
           />
-        </div>
-        <div>
-          <Label htmlFor="maxPrice">Max Price</Label>
-          <Input
-            id="maxPrice"
+        </ConformField>
+
+        <ConformField field={fields.maxPrice} label="Max Price">
+          <ConformInput
+            field={fields.maxPrice}
             type="number"
             placeholder="$1000"
-            {...register("maxPrice")}
           />
-        </div>
-        <div>
-          <Label htmlFor="guests">Guests</Label>
-          <Input
-            id="guests"
-            type="number"
-            placeholder="1"
-            {...register("guests")}
-          />
-        </div>
+        </ConformField>
+
+        <ConformField field={fields.guests} label="Guests">
+          <ConformInput field={fields.guests} type="number" placeholder="1" />
+        </ConformField>
       </div>
       <Button type="submit" className="mt-4 w-full md:w-auto">
         <Search className="h-4 w-4 mr-2" />
